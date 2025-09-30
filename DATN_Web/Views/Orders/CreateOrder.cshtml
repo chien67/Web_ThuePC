@@ -1,0 +1,90 @@
+﻿
+@{ ViewBag.Title = "Tạo mới đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Thông tin khách hàng</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form role="form">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Tên khách hàng</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Tên khách hàng">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Đại diện</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Đại diện">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Điện thoại</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Điện thoại">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Địa chỉ giao hàng</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Địa chỉ giao hàng">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- general form elements disabled -->
+                            <div class="card card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title">Thông tin đơn hàng</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <form role="form">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <!-- text input -->
+                                                <div class="form-group">
+                                                    <label>Thời gian giao:</label>
+                                                    <input type="text" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask="" im-insert="false">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Thời gian nhận</label>
+                                                    <input type="time" class="form-control" placeholder="Enter ...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- textarea -->
+                                        <div class="form-group">
+                                            <label>Thông tin yêu cầu</label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                                        </div>
+                                        <!-- input states -->
+                                        <div class="form-group">
+                                            <label>Thời gian</label>
+                                            <input type="text" class="form-control" placeholder="Enter ...">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Đơn giá</label>
+                                            <input type="text" class="form-control" placeholder="Enter ...">
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                            <!-- /.card -->
+                        </div>
+                    </form>
+                    <!--/.col (right) -->
+                </div>
+                <!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+    </div>
+</section>
+
+
