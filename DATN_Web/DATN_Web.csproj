@@ -121,12 +121,19 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="BusinessLayer\CustomerBLL.cs" />
+    <Compile Include="BusinessLayer\DeviceCategoryBLL.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
+    <Compile Include="Controllers\WarehouseController.cs" />
+    <Compile Include="DataAccesLayer\CustomerDAL.cs" />
+    <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\DeviceCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1949,10 +1956,13 @@
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\CreateCustomers.cshtml" />
     <Content Include="Views\Customers\DetailCustomers.cshtml" />
+    <Content Include="Views\Warehouse\Index.cshtml" />
+    <Content Include="Views\Orders\DeleteOrder.cshtml" />
+    <Content Include="Views\Customers\DeleteCustomers.cshtml" />
+    <Content Include="Views\Warehouse\CreateDeviceCategory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

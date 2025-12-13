@@ -6,21 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Thuê Máy Tính</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!--Boostrap-->>
+    <!--Boostrap-->
     <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
     <link rel="stylesheet" href="@Url.Content("~/Plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css")">
 
     <!-- font awesome-->
     <link href="@Url.Content("~/Plugins/fontawesome-free/css/all.min.css")" rel="stylesheet" />
     <!-- Ionicons -->
-    <link href="@Url.Content("~/Content/css_admin/ionicons.min.css")" rel="stylesheet" />
+    @*<link href="@Url.Content("~/Content/css_admin/ionicons.min.css")" rel="stylesheet" />*@
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- overlayScrollbars -->
     <link href="@Url.Content("~/Content/css_admin/css/adminlte.min.css")" rel="stylesheet" />
-
+    <link href="@Url.Content("~/Plugins/select2/css/select2.min.css")" rel="stylesheet" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <!-- DataTables -->
     <link href="@Url.Content("~/Plugins/datatables-bs4/css/dataTables.bootstrap4.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Plugins/datatables-responsive/css/responsive.bootstrap4.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Plugins/daterangepicker/daterangepicker.css")" rel="stylesheet" />
+
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -33,7 +36,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="../../index3.html" class="nav-link">Trang Chủ</a>
+                    <a href="@Url.Action("Index","Home")" class="nav-link">Trang Chủ</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="#" class="nav-link">Liên hệ</a>
@@ -65,7 +68,7 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="@Url.Action("Index","Orders")" class="brand-link">
+            <a href="@Url.Action("Index","Home")" class="brand-link">
                 <img src="~/images/BK4.png"
                      alt="Bk4 Logo"
                      class="brand-image img-circle elevation-3"
@@ -155,21 +158,21 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index","Orders")" class="nav-link">
+                                    <a href="@Url.Action("Index","Warehouse")" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Danh sách sản phầm</p>
+                                        <p>Danh sách danh mục</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="@Url.Action("CreateOrder","Orders")" class="nav-link">
+                                    <a href="@Url.Action("CreateDeviceCategory","Warehouse")" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Thêm sản phẩm</p>
+                                        <p>Thêm danh mục</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="@Url.Action("DetailOrder","Orders")" class="nav-link">
+                                    <a href="@Url.Action("DetailDeviceCategory","Warehouse")" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Chi tiết sản phẩm</p>
+                                        <p>Chi tiết danh mục</p>
                                     </a>
                                 </li>
                             </ul>
@@ -228,25 +231,9 @@
             </div>
             <!-- /.sidebar -->
         </aside>
-
-        <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <section class="content-header">
-                <!--<div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1>Blank Page</h1>
-                        </div>
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Blank Page</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>-->
-                <!-- /.container-fluid -->
             </section>
 
             <!-- Main content -->
@@ -266,16 +253,6 @@
             </section>
             <!-- /.content -->
         </div>
-        <!-- /.content-wrapper -->
-
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-block">
-                <b>Version</b> 3.0.4
-            </div>
-            <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights
-            reserved.
-        </footer>
-
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
             <!-- Control sidebar content goes here -->
@@ -294,8 +271,11 @@
     <script src="@Url.Content("~/Plugins/datatables-bs4/js/dataTables.bootstrap4.min.js")"></script>
     <script src="@Url.Content("~/Plugins/datatables-responsive/js/dataTables.responsive.min.js")"></script>
     <script src="@Url.Content("~/Plugins/datatables-responsive/js/responsive.bootstrap4.min.js")"></script>
+    <script src="@Url.Content("~/Plugins/select2/js/select2.min.js")"></script>
+    <script src="@Url.Content("~/Plugins/daterangepicker/daterangepicker.js")"></script>
     <!-- InputMask -->
-    <script src="@Url.Content("/Plugins/moment/moment.min.js")"></script>
+    <script src="@Url.Content("~/Plugins/moment/moment.min.js")"></script>
+    <script src="@Url.Content("~/Plugins/inputmask/jquery.inputmask.min.js")"></script>
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="@Url.Content("/Plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js")"></script>
     <script>
@@ -311,7 +291,7 @@
                 "ordering": true,
                 "info": true,
                 "autoWidth": true,
-                "responsive": true,
+                "responsive": false,
             });
         });
     </script>
@@ -374,23 +354,6 @@
             $('#timepicker').datetimepicker({
                 format: 'LT'
             })
-
-            //Bootstrap Duallistbox
-            $('.duallistbox').bootstrapDualListbox()
-
-            //Colorpicker
-            $('.my-colorpicker1').colorpicker()
-            //color picker with addon
-            $('.my-colorpicker2').colorpicker()
-
-            $('.my-colorpicker2').on('colorpickerChange', function (event) {
-                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
-            });
-
-            $("input[data-bootstrap-switch]").each(function () {
-                $(this).bootstrapSwitch('state', $(this).prop('checked'));
-            });
-
         })
     </script>
     <!-- jquery-validation -->
@@ -400,8 +363,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $.validator.setDefaults({
-                submitHandler: function () {
-                    alert("Form successful submitted!");
+                submitHandler: function (form) {
+                    form.submit();
                 }
             });
             $('#quickForm').validate({

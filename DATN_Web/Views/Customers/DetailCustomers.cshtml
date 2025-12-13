@@ -1,3 +1,127 @@
 ﻿@{
     ViewBag.Title = "Chi tiết khách hàng";
 }
+<div class="row">
+    <div class="col-md-6">
+        <!-- Line chart -->
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="far fa-chart-bar"></i>
+                    Khách hàng
+                </h3>
+                <div class="project-actions text-right">
+                    <a class="btn btn-danger btn-sm" style="" href="@Url.Action("EditCustomers","Customers")">
+                        Sửa thông tin
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="line-chart" style="height: 300px;"></div>
+            </div>
+
+            <!-- /.card-body-->
+        </div>
+
+    </div>
+    <div class="col-md-6">
+        <!-- Bar chart -->
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="far fa-chart-bar"></i>
+                    Ghi chú
+                </h3>
+
+            </div>
+            <div class="card-body">
+                @*<div id="bar-chart" style="height: 300px;"></div>*@
+                <div class="card-body">
+                    <textarea name="ghichukhachhang" id="ghichukhachhang" class="form-control" disabled=""></textarea>
+                </div>
+            </div>
+            <!-- /.card-body-->
+        </div>
+        <!-- /.card -->
+    </div>
+</div>
+
+<div class="card card-success">
+    <div class="card-header">
+        <h3 class="card-title">Thiết bị</h3>
+        <div class="project-actions text-right">
+            <div class="btn-group ">
+                <button type="button" class="btn btn-info">Thêm mới</button>
+                <button type="button" class="btn btn-dark">Chi tiết</button>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <div class="card-body">
+        <table id="example2" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ngày giao</th>
+                    <th>Nội dung</th>
+                    <th>Tình trạng</th>
+                    <th>Ngày hết hạn</th>
+                    <th>X</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card card-success">
+    <div class="card-header">
+        <h3 class="card-title">ĐƠN HÀNG</h3>
+        <div class="project-actions text-right">
+            <div class="btn-group ">
+                    <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
+                        <i class="fas fa-folder">
+                        </i>
+                        Xem
+                    </a>
+                    <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
+                        <i class="fas fa-pencil-alt">
+                        </i>
+                        Sửa
+                    </a>
+                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
+                        <i class="fas fa-trash">
+                        </i>
+                        Xoá
+                    </a>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <div class="card-body">
+        <table id="example2" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ngày giao</th>
+                    <th>Danh mục</th>
+                    <th>Model</th>
+                    <th>Cấu hình</th>
+                    <th>Số lượng</th>
+                    <th>Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card card-success card-outline">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-edit"></i>
+            Lịch Sử Cập nhập
+        </h3>
+    </div>
+    <div class="card-body">
+    </div>
+</div>

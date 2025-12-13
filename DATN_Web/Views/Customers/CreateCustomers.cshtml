@@ -1,8 +1,7 @@
 ﻿@{
     ViewBag.Title = "Tạo mới khách hàng";
 }
-
-
+@model DATN_Web.Models.Customer
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
@@ -16,39 +15,48 @@
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
-                    <form role="form" id="quickForm">
+                    <form method="post" action="/Customers/CreateCustomers" role="form" id="quickForm">
                         <div class="card-body">
                             <div class="form-group">
+                                <label>Loại khách hàng</label>
+                                <select name="CustomerType" class="form-control">
+                                    <option value="1">Cá nhân</option>
+                                    <option value="2">Doanh nghiệp</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label>Tên khách hàng</label>
-                                <input type="text" class="form-control" placeholder="Vui lòng nhập tên hoặc doanh nghiệp">
+                                <input type="text" name="CustomerName" class="form-control" placeholder="Vui lòng nhập tên hoặc doanh nghiệp">
                             </div>
                             <div class="form-group">
                                 <label>Người đại diện</label>
-                                <input type="text" class="form-control" placeholder="Người đại diện">
+                                <input type="text" name="RepresentativeName" class="form-control" placeholder="Người đại diện">
                             </div>
                             <div class="form-group">
                                 <label>CCCD</label>
-                                <input type="text" class="form-control" placeholder="Số căn cước công dân">
+                                <input type="text" name="TaxCode" class="form-control" placeholder="Số căn cước công dân">
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Email address</label>
-                                <input type="email" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                                <input type="email" name="Email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
                             </div>
                             <div class="form-group">
                                 <label>Số điện thoại</label>
-                                <input type="text" class="form-control" placeholder="Số điện thoại ">
+                                <input type="text" name="Phone" class="form-control" placeholder="Số điện thoại ">
                             </div>
                             <div class="form-group">
                                 <label>Địa chỉ khách hàng</label>
-                                <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                                <input class="form-control" name="Address" rows="3" placeholder="Enter ...">
                             </div>
-                            <div class="form-group mb-0">
+                            <div class="form-group">
+                                <label>Ghi chú</label>
+                                <textarea name="CustomerNote" class="form-control" rows="3"></textarea>
+                            </div>
+                            @*<div class="form-group mb-0">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" name="terms" class="custom-control-input" id="exampleCheck1">
                                     <label class="custom-control-label" for="exampleCheck1">I agree to the <a href="#">terms of service</a>.</label>
-                                </div>
-                            </div>
-
+                                </div>*@
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">Submit</button>

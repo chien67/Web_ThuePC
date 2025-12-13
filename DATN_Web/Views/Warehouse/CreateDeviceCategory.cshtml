@@ -1,0 +1,125 @@
+﻿@{ 
+    ViewBag.Title = "Tạo mới danh mục";
+}
+<div class="card card-success">
+    <div class="card-header">
+        <h3 class="card-title">Tạo danh mục mới</h3>
+        @*<div class="project-actions text-right">
+                <div class="btn-group ">
+                    <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
+                        <i class="fas fa-folder">
+                        </i>
+                        Xem
+                    </a>
+                    <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
+                        <i class="fas fa-pencil-alt">
+                        </i>
+                        Sửa
+                    </a>
+                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
+                        <i class="fas fa-trash">
+                        </i>
+                        Xoá
+                    </a>
+                </div>
+            </div>*@
+        <!-- /.card-body -->
+    </div>
+    <div class="card-body">
+        <div class="input-group">
+            <input type="text" id="categoryNameInput" name="CategoryName" class="form-control" placeholder="Vui lòng nhập tên danh mục">
+            <button type="button" id="submitCategoryBtn" class="btn btn-primary">Submit</button>
+            <div id="messageArea" class="mt-2"></div>
+        </div>
+    </div>
+
+</div>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Danh mục có sẵn</h3>
+
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <button class="btn badge-primary mr-2 mb-2" type="button">Laptop</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">CasePC</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Màn Hình máy tính</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Bàn Phím</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Chuột</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Ổ điện</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Máy in</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Máy scan</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Máy huỷ tài liệu</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Access Point</button>
+        <button class="btn badge-primary mr-2 mb-2" type="button">Thiết bị mạng</button>
+    </div>
+</div>
+<script>
+    document.getElementById('submitCategoryBtn').addEventListener('click', function () {
+        // 1. Thu thập dữ liệu
+        const categoryNameInput = document.getElementById('categoryNameInput');
+        const categoryName = categoryNameInput.value.trim(); // Lấy giá trị và loại bỏ khoảng trắng dư thừa
+        const messageArea = document.getElementById('messageArea');
+
+        // Xóa thông báo cũ
+        messageArea.innerHTML = '';
+        messageArea.className = 'mt-2';
+
+        // Kiểm tra dữ liệu hợp lệ (client-side validation)
+        if (categoryName === "") {
+            messageArea.innerHTML = '<span class="text-danger">Vui lòng nhập tên danh mục.</span>';
+            categoryNameInput.focus();
+            return; // Dừng hàm nếu không hợp lệ
+        }
+
+        // 2. Chuẩn bị dữ liệu gửi đi (Đảm bảo tên thuộc tính CategoryName khớp với Model C# của bạn)
+        const dataToSend = {
+            CategoryName: categoryName
+            // Lưu ý: Các trường mặc định khác như ModelCount, TotalQuanity, LastUpdate
+            // nên được xử lý ở phía Server (BLL/DAL)
+        };
+
+        // 3. Thực hiện yêu cầu AJAX (Fetch API)
+        // Thay thế /DeviceCategory/Create bằng URL Controller/Action chính xác của bạn
+        const url = '@Url.Action("CreateDeviceCategory", "Warehouse")';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                // Chúng ta gửi dữ liệu dưới dạng JSON
+                'Content-Type': 'application/json'
+                // LƯU Ý: Nếu bạn dùng AntiforgeryToken (khuyến nghị), bạn phải thêm token vào headers
+            },
+            body: JSON.stringify(dataToSend) // Chuyển đối tượng JS thành chuỗi JSON
+        })
+            .then(response => {
+                // Kiểm tra mã trạng thái HTTP (ví dụ: 200 OK, 400 Bad Request)
+                if (!response.ok) {
+                    // Ném lỗi để chuyển sang khối .catch
+                    throw new Error('Lỗi máy chủ HTTP: ' + response.status);
+                }
+                // Giả sử Controller C# của bạn trả về JSON (ví dụ: { success: true, message: "" })
+                return response.json();
+            })
+            .then(result => {
+                // 4. Xử lý phản hồi từ Server
+                if (result.success) {
+                    messageArea.innerHTML = '<span class="text-success">✅ Thêm danh mục thành công!</span>';
+                    categoryNameInput.value = ''; // Xóa ô input sau khi thành công
+                } else {
+                    // Lỗi nghiệp vụ (ví dụ: tên danh mục đã tồn tại)
+                    messageArea.innerHTML = '<span class="text-danger">❌ Lỗi: ' + (result.message || 'Lỗi trùng tên danh mục.') + '</span>';
+                }
+            })
+            .catch(error => {
+                // 5. Xử lý lỗi hệ thống (mất mạng, lỗi Server 500...)
+                console.error('Lỗi AJAX:', error);
+                messageArea.innerHTML = '<span class="text-danger">❌ Lỗi hệ thống: Không thể kết nối đến máy chủ.</span>';
+            });
+    });
+
+</script>
