@@ -1,0 +1,95 @@
+﻿
+@model DATN_Web.Models.DeviceModelCategory
+
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="card col-lg-10 col-xl-9">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1 px-4 py-3">
+                    <h4 class="">Danh mục: @ViewBag.ModelName</h4>
+                </div>
+
+                <div class="text-right flex-grow-1 px-4 py-3">
+                    <button id="btnToggle" class="btn btn-success"> Tạo mới</button>
+                </div>
+            </div>
+        </div>
+        @* hover *@
+    <form class="card col-lg-10 col-xl-9" method="post" action="/DeviceModels/Create">
+        @Html.HiddenFor(m => m.CategoryId, new { Value = Model.CategoryId })
+        <div id="addForm" class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1 px-4 py-3">
+                <h5 class="my-3" font-size:1.2rem">Tạo Model mới: </h5>
+            </div>
+            <div class="col-lg-3">
+                <input class="form-control" name="ModelName" placeholder="Tên Model">
+            </div>
+            <div class="col-lg-4">
+                <input class="form-control" name="Configuration" placeholder="Cấu hình">
+            </div>
+            <div class="text-end">
+                <button id="btnToggle" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </form>
+
+        <div class="card col-lg-10 col-xl-9">
+            <div class="card-header bg-success">
+                <h3 class="card-title ">Danh sách máy kèm cấu hình</h3>
+            </div>
+            <table id="example2" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Model</th>
+                        <th>Cấu hình</th>
+                        <th>SL Tổng</th>
+                        <th>Tồn kho</th>
+                        <th>Sử dụng</th>
+                        <th>Hỏng</th>
+                        @*<th>Update</th>*@
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.Models)
+                    {
+                        <tr>
+                            <td>@m.Id</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="@Url.Action("Index","DeviceModels",new { categoryId = m.Id })">
+                                    @m.ModelName
+                                </a>
+                            </td>
+                            <td>@m.Configuration</td>
+                            <td>@m.TotalQuantity</td>
+                            <td>@m.InStockQuantity</td>
+                            <td>@m.InUseQuantity</td>
+                            <td>@m.BrokenQuantity</td>
+                            <td class="project-actions text-right">
+                                <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers")">
+                                    <i class="fas fa-folder">
+                                    </i>
+                                    Nhập
+                                </a>
+                                <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
+                                    <i class="fas fa-trash">
+                                    </i>
+                                    Xoá
+                                </a>
+                            </td>
+                            @*<td>@m.LastUpdatedAt</td>*@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    document.getElementById("btnToggle").onclick = function () {
+        document.getElementById("addForm").classList.toggle("d-none");
+    };
+</script>

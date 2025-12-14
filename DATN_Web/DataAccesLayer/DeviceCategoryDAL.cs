@@ -16,6 +16,32 @@ namespace DATN_Web.DataAccesLayer
             // Lấy chuỗi kết nối từ Web.config/App.config
             return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
         }
+        public List<DeviceCategory> GetAllCategory()
+        {
+            string connStr = GetConnectionString();
+            List<DeviceCategory> listCategories = new List<DeviceCategory>();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"SELECT Id,CategoryName,ModelCount,TotalQuantity,LastUpdated FROM DeviceCategory";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    listCategories.Add(new DeviceCategory
+                    {
+                        Id = (int)rd["ID"],
+                        CategoryName = rd["CategoryName"].ToString(),
+                        ModelCount = (int)rd["ModelCount"],
+                        TotalQuantity = (int)rd["TotalQuantity"],
+                        LastUpdated = (DateTime)rd["LastUpdated"]
+                    });
+                }
+                return listCategories;
+            }
+
+        }
         public bool IsCategoryNameExist(string categoryName)
         {
             string connStr = GetConnectionString();
@@ -38,7 +64,7 @@ namespace DATN_Web.DataAccesLayer
             }
 
         }
-    
+
         public bool CreateDeviceCategory(DeviceCategory deviceCategory)
         {
             string connStr = GetConnectionString();
@@ -47,12 +73,12 @@ namespace DATN_Web.DataAccesLayer
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     string sql = @"INSERT INTO DeviceCategory (CategoryName, ModelCount, TotalQuantity, LastUpdated)
-                                 VALUES (CategoryName, ModelCount, TotalQuantity, LastUpdated)";
+                                 VALUES (@CategoryName, @ModelCount, @TotalQuanity, @LastUpdated)";
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue(@"CategoryName", deviceCategory.CategoryName);
-                    cmd.Parameters.AddWithValue(@"ModelCount", deviceCategory.ModelCount);
-                    cmd.Parameters.AddWithValue(@"TotalQuanity", deviceCategory.TotalQuanity);
-                    cmd.Parameters.AddWithValue(@"LastUpdated", deviceCategory.LastUpdated);
+                    cmd.Parameters.AddWithValue("@CategoryName", deviceCategory.CategoryName);
+                    cmd.Parameters.AddWithValue("@ModelCount", deviceCategory.ModelCount);
+                    cmd.Parameters.AddWithValue("@TotalQuanity", deviceCategory.TotalQuantity);
+                    cmd.Parameters.AddWithValue("@LastUpdated", deviceCategory.LastUpdated);
                     conn.Open();
                     int row = cmd.ExecuteNonQuery();
                     return row > 0;
@@ -64,6 +90,26 @@ namespace DATN_Web.DataAccesLayer
                 throw new Exception("Lỗi Insert" + ex.Message);
             }
         }
-        
+        public DeviceCategory GetById(int id)
+        {
+            string connStr = GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"SELECT * FROM DeviceCategory WHERE Id=@Id";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    return new DeviceCategory
+                    {
+                        Id = (int)rd["Id"],
+                        CategoryName = rd["CategoryName"].ToString()
+                    };
+                }
+            }
+            return null;
+        }
     }
 }

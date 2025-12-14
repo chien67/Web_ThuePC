@@ -16,7 +16,8 @@ namespace DATN_Web.Controllers
         // GET: Warehouse
         public ActionResult Index()
         {
-            return View();
+            var data = bll.GetAll();
+            return View(data);
         }
         [HttpGet]
         public ActionResult CreateDeviceCategory()
@@ -42,29 +43,11 @@ namespace DATN_Web.Controllers
             // 3. Chuẩn bị dữ liệu (Gán các giá trị mặc định/hệ thống)
             category.LastUpdated = DateTime.Now;
             category.ModelCount = 0;
-            category.TotalQuanity = 0;
+            category.TotalQuantity = 0;
 
             // 4. Gọi DAL để thực hiện thao tác lưu DB
             return _dal.CreateDeviceCategory(category);
         }
-        //public ActionResult CreateDeviceCategory(DeviceCategory category)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        category.ModelCount = 0;
-        //        category.TotalQuanity = 0;
-        //        category.LastUpdated = DateTime.Now;
-        //        bool success = bll.CreateDeviceCategory(category);
-        //        if (success)
-        //        {
-        //            TempData["msg"] = "Thêm mới khách hàng thành công";
-        //            return RedirectToAction("CreateCustomers");
-        //            //return RedirectToAction("Index");
-        //        }
-        //        TempData["msg"] = "Lỗi: Thêm khách hàng thất bại";
-        //    }
-        //    return View(category);
-        //}
         public ActionResult DeleteDeviceCategory()
         {
             return View();

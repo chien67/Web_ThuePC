@@ -10,6 +10,11 @@ namespace DATN_Web.BusinessLayer
     public class DeviceCategoryBLL
     {
         DeviceCategoryDAL dal= new DeviceCategoryDAL();
+
+        public List<DeviceCategory> GetAll()
+        {
+            return dal.GetAllCategory();
+        }
         public bool CreateDeviceCategory(DeviceCategory deviceCategory)
         {
             return dal.CreateDeviceCategory(deviceCategory);

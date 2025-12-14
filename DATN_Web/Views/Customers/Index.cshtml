@@ -4,58 +4,67 @@
 }
 <!-- Main content -->
 <section class="content">
-
-    <div class="row">
-        <div class="col-12">
-            <!-- /.card-header -->
-            <div class="card-body">
-                <table id="example2" class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên Công Ty</th>
-                            <th>Đại diện</th>
-                            <th>MST</th>
-                            <th>Điện thoại</th>
-                            <th>Trạng Thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var kh in Model)
-                        {
-                            <tr>
-                                <td>@kh.CustomerId</td>
-                                <td>@kh.CustomerName</td>
-                                <td>@kh.RepresentativeName</td>
-                                <td>@kh.TaxCode</td>
-                                <td>@kh.Phone</td>
-                                <td class="project-actions text-right">
-                                    <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers")">
-                                        <i class="fas fa-folder">
-                                        </i>
-                                        Xem
-                                    </a>
-                                    <a class="btn btn-info btn-sm" href="@Url.Action("EditCustomers","Customers")">
-                                        <i class="fas fa-pencil-alt">
-                                        </i>
-                                        Sửa
-                                    </a>
-                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
-                                        <i class="fas fa-trash">
-                                        </i>
-                                        Xoá
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card-header bg-success">
+                    <h3 class="card-title ">@ViewBag.Title</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="example2" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tên Công Ty</th>
+                                            <th>Đại diện</th>
+                                            <th>MST</th>
+                                            <th>Điện thoại</th>
+                                            <th>Trạng Thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var kh in Model)
+                                        {
+                                            <tr>
+                                                <td>@kh.CustomerId</td>
+                                                <td>@kh.CustomerName</td>
+                                                <td>@kh.RepresentativeName</td>
+                                                <td>@kh.TaxCode</td>
+                                                <td>@kh.Phone</td>
+                                                <td class="project-actions text-right">
+                                                    <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers")">
+                                                        <i class="fas fa-folder">
+                                                        </i>
+                                                        Xem
+                                                    </a>
+                                                    <a class="btn btn-info btn-sm" href="@Url.Action("EditCustomers","Customers")">
+                                                        <i class="fas fa-pencil-alt">
+                                                        </i>
+                                                        Sửa
+                                                    </a>
+                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
+                                                        <i class="fas fa-trash">
+                                                        </i>
+                                                        Xoá
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </div>
             </div>
-            <!-- /.card-body -->
         </div>
-        <!-- /.col -->
     </div>
-    <!-- /.row -->
 </section>
 <!-- /.content -->
 <!-- /.content-wrapper -->

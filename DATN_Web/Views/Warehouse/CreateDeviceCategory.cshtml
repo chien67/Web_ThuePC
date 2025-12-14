@@ -1,63 +1,55 @@
-﻿@{ 
+﻿@{
     ViewBag.Title = "Tạo mới danh mục";
 }
-<div class="card card-success">
-    <div class="card-header">
-        <h3 class="card-title">Tạo danh mục mới</h3>
-        @*<div class="project-actions text-right">
-                <div class="btn-group ">
-                    <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
-                        <i class="fas fa-folder">
-                        </i>
-                        Xem
-                    </a>
-                    <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
-                        <i class="fas fa-pencil-alt">
-                        </i>
-                        Sửa
-                    </a>
-                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
-                        <i class="fas fa-trash">
-                        </i>
-                        Xoá
-                    </a>
+
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card-header bg-success">
+                    <h3 class="card-title ">@ViewBag.Title</h3>
                 </div>
-            </div>*@
-        <!-- /.card-body -->
-    </div>
-    <div class="card-body">
-        <div class="input-group">
-            <input type="text" id="categoryNameInput" name="CategoryName" class="form-control" placeholder="Vui lòng nhập tên danh mục">
-            <button type="button" id="submitCategoryBtn" class="btn btn-primary">Submit</button>
-            <div id="messageArea" class="mt-2"></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="card-body">
+                            <div class="input-group">
+                                <input type="text" id="categoryNameInput" name="CategoryName" class="form-control" placeholder="Vui lòng nhập tên danh mục">
+                                <button type="button" id="submitCategoryBtn" class="btn btn-primary">Submit</button>
+                                <div id="messageArea" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Danh mục có sẵn</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Laptop</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">CasePC</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Màn Hình máy tính</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Bàn Phím</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Chuột</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Ổ điện</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Máy in</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Máy scan</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Máy huỷ tài liệu</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Access Point</button>
+                    <button class="btn badge-primary mr-2 mb-2" type="button">Thiết bị mạng</button>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-</div>
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Danh mục có sẵn</h3>
-
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <button class="btn badge-primary mr-2 mb-2" type="button">Laptop</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">CasePC</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Màn Hình máy tính</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Bàn Phím</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Chuột</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Ổ điện</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Máy in</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Máy scan</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Máy huỷ tài liệu</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Access Point</button>
-        <button class="btn badge-primary mr-2 mb-2" type="button">Thiết bị mạng</button>
-    </div>
-</div>
 <script>
     document.getElementById('submitCategoryBtn').addEventListener('click', function () {
         // 1. Thu thập dữ liệu
