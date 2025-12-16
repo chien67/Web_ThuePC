@@ -9,8 +9,15 @@ namespace DATN_Web.BusinessLayer
 {
     public class DeviceModelBLL
     {
-        private DeviceCategoryDAL _categoryDal = new DeviceCategoryDAL();
-        private DeviceModelDAL _modelDal = new DeviceModelDAL();
+        private readonly DeviceModelDAL _modelDal;
+        private readonly DeviceCategoryDAL _categoryDal;
+
+        public DeviceModelBLL(DeviceModelDAL modelDal, DeviceCategoryDAL categoryDal) // DI cho DAL
+        {
+
+            _categoryDal = categoryDal;
+            _modelDal = modelDal;
+        }
 
         public DeviceModelCategory GetByCategory(int categoryId)
         {
@@ -32,22 +39,45 @@ namespace DATN_Web.BusinessLayer
                 Models = models
             };
         }
-        public void Create(ModelCreate vm)
+        public bool CreateDeviceModel(DeviceModel model)
         {
-            DeviceModel model = new DeviceModel
+            // 1. Kiểm tra nghiệp vụ cơ bản
+            if (string.IsNullOrWhiteSpace(model.ModelName) || model.CategoryId <= 0)
             {
-                CategoryId = vm.CategoryId,
-                ModelName = vm.ModelName.Trim(),
-                Configuration = vm.Configuration.Trim(),
+                return false;
+            }
+            // 4. Gọi DAL để lưu DB và lấy ID mới
+            int newId = _modelDal.CreateDeviceModel(model);
 
-                TotalQuantity = 0,
-                InStockQuantity = 0,
-                InUseQuantity = 0,
-                BrokenQuantity = 0,
-                LastUpdatedAt = DateTime.Now
-            };
+            if (newId > 0)
+            {
+                // Cập nhật ID mới vào đối tượng BLL đang giữ
+                model.Id = newId;
+                return true;
+            }
 
-            _modelDal.CreateDeviceModel(model);
+            return false; // Thêm thất bại (Lỗi DB, v.v.)
+        }
+        public bool DeleteDeviceModel(int modelId)
+        {
+            if (modelId <= 0)
+            {
+                // Không hợp lệ
+                return false;
+            }
+            // Gọi DAL để xóa
+            int rows = _modelDal.DeleteDeviceModel(modelId);
+
+            // Nếu số dòng bị ảnh hưởng lớn hơn 0 (nghĩa là xóa thành công ít nhất 1 dòng)
+            return rows > 0;
+        }
+        public bool UpdateStock(int modelId, int quantity, string partner, string jobType, string notes)
+        {
+            // Nếu bạn có bảng ImportEntry, bạn sẽ lưu lịch sử nhập kho ở đây
+            // ...
+
+            // Gọi DAL để cập nhật Model
+            return _modelDal.UpdateQuantities(modelId, quantity);
         }
     }
 }

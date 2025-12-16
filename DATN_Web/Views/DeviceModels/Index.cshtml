@@ -15,23 +15,24 @@
             </div>
         </div>
         @* hover *@
-    <form class="card col-lg-10 col-xl-9" method="post" action="/DeviceModels/Create">
-        @Html.HiddenFor(m => m.CategoryId, new { Value = Model.CategoryId })
-        <div id="addForm" class="d-flex justify-content-between align-items-center">
-            <div class="flex-grow-1 px-4 py-3">
-                <h5 class="my-3" font-size:1.2rem">Tạo Model mới: </h5>
+        <form class="card col-lg-10 col-xl-9" method="post" action="/DeviceModels/Create">
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.CategoryId, new { Value = Model.CategoryId })
+            <div id="addForm" class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1 px-4 py-3">
+                    <h5 class="my-3" font-size:1.2rem">Tạo Model mới: </h5>
+                </div>
+                <div class="col-lg-3">
+                    <input class="form-control" name="ModelName" placeholder="Tên Model">
+                </div>
+                <div class="col-lg-4">
+                    <input class="form-control" name="Configuration" placeholder="Cấu hình">
+                </div>
+                <div class="text-end">
+                    <button id="btnToggle" class="btn btn-primary">Lưu</button>
+                </div>
             </div>
-            <div class="col-lg-3">
-                <input class="form-control" name="ModelName" placeholder="Tên Model">
-            </div>
-            <div class="col-lg-4">
-                <input class="form-control" name="Configuration" placeholder="Cấu hình">
-            </div>
-            <div class="text-end">
-                <button id="btnToggle" class="btn btn-primary">Lưu</button>
-            </div>
-        </div>
-    </form>
+        </form>
 
         <div class="card col-lg-10 col-xl-9">
             <div class="card-header bg-success">
@@ -67,18 +68,27 @@
                             <td>@m.InUseQuantity</td>
                             <td>@m.BrokenQuantity</td>
                             <td class="project-actions text-right">
-                                <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers")">
-                                    <i class="fas fa-folder">
-                                    </i>
+                                <a class="btn btn-primary btn-sm" href="@Url.Action("Import", "DeviceModels", new { modelId = m.Id, categoryId = m.CategoryId })">
+                                    <i class="fas fa-folder"></i>
                                     Nhập
                                 </a>
-                                <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
-                                    <i class="fas fa-trash">
-                                    </i>
-                                    Xoá
-                                </a>
+                                <form method="post"
+                                      action="@Url.Action("DeleteModel", "DeviceModels")"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa Model @m.ModelName (ID: @m.Id) không?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden" name="modelId" value="@m.Id" />
+
+                                    <input type="hidden" name="categoryId" value="@m.CategoryId" />
+
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        Xoá
+                                    </button>
+                                </form>
                             </td>
-                            @*<td>@m.LastUpdatedAt</td>*@
                         </tr>
                     }
                 </tbody>
@@ -88,8 +98,3 @@
 </section>
 
 
-<script>
-    document.getElementById("btnToggle").onclick = function () {
-        document.getElementById("addForm").classList.toggle("d-none");
-    };
-</script>

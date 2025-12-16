@@ -16,7 +16,6 @@ namespace DATN_Web.Models
         public int InUseQuantity { get; set; }
         public int BrokenQuantity { get; set; }
         public DateTime LastUpdatedAt { get; set; }
-
         // Navigation
         public DeviceCategory Category { get; set; }
     }

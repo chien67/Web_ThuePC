@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using DATN_Web.Models;
 
@@ -14,7 +15,9 @@ namespace DATN_Web.DataAccesLayer
         {
             // Lấy chuỗi kết nối từ Web.config/App.config
             return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
+
         }
+
         public List<DeviceModel> GetByCategoryId(int categoryId)
         {
             string connStr = GetConnectionString();
@@ -25,12 +28,14 @@ namespace DATN_Web.DataAccesLayer
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@CategoryId", categoryId);
                 conn.Open();
-                var rd =cmd.ExecuteReader();
-                while (rd.Read()) {
+                var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
                     list.Add(new DeviceModel
                     {
                         Id = (int)rd["Id"],
-                        ModelName= rd["ModelName"].ToString(),
+                        CategoryId = (int)rd["CategoryId"],
+                        ModelName = rd["ModelName"].ToString(),
                         Configuration = rd["Configuration"].ToString(),
                         TotalQuantity = (int)rd["TotalQuantity"],
                         InStockQuantity = (int)rd["InStockQuantity"],
@@ -42,46 +47,109 @@ namespace DATN_Web.DataAccesLayer
             }
             return list;
         }
-        public bool CreateDeviceModel(DeviceModel deviceModel)
+        public int CreateDeviceModel(DeviceModel model)
         {
             string connStr = GetConnectionString();
+            int newId = 0;
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
+                    // INSERT và lấy lại ModelId mới bằng SCOPE_IDENTITY()
                     string sql = @"
-                INSERT INTO DeviceModel
-                (
-                    CategoryId,
+                    INSERT INTO DeviceModel (CategoryId,
                     ModelName,
                     Configuration,
                     TotalQuantity,
                     InStockQuantity,
                     InUseQuantity,
                     BrokenQuantity,
-                    LastUpdatedAt
-                )
-                VALUES
-                (
-                    @CategoryId,
+                    LastUpdatedAt)
+                    VALUES (@CategoryId,
                     @ModelName,
                     @Configuration,
                     0, 0, 0, 0,
-                    GETDATE()
-                )";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@CategoryId", deviceModel.CategoryId);
-                    cmd.Parameters.AddWithValue("@ModelName", deviceModel.ModelName);
-                    cmd.Parameters.AddWithValue("@Configuration", deviceModel.Configuration);
-                    conn.Open();
-                    int row = cmd.ExecuteNonQuery();
-                    return row > 0;
-                }
+                    GETDATE());
+                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    // Thêm các tham số
+                    cmd.Parameters.AddWithValue("@CategoryId", model.CategoryId);
+                    cmd.Parameters.AddWithValue("@ModelName", model.ModelName);
+                    cmd.Parameters.AddWithValue("@Configuration", model.Configuration);
+
+                    conn.Open();
+
+                    // Dùng ExecuteScalar() để lấy ID mới
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        newId = Convert.ToInt32(result);
+                    }
+                }
+                return newId; // Trả về ID mới
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi Insert" + ex.Message);
+                // Ghi log lỗi
+                throw new Exception("Lỗi DAL khi tạo Model: " + ex.Message);
+            }
+        }
+        public int DeleteDeviceModel(int modelId)
+        {
+            string connStr = GetConnectionString();
+            int rowsAffected = 0;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    // Lệnh SQL DELETE
+                    string sql = "DELETE FROM DeviceModel WHERE Id = @Id";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    // Thêm tham số ModelId
+                    cmd.Parameters.AddWithValue("@Id", modelId);
+
+                    conn.Open();
+
+                    // ExecuteNonQuery trả về số dòng bị ảnh hưởng
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                return rowsAffected; // Sẽ là 1 nếu xóa thành công, 0 nếu không tìm thấy ID
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi và ném ra Exception (Hoặc xử lý lỗi ngoại lệ DB)
+                throw new Exception("Lỗi DAL khi xóa Model: " + ex.Message);
+            }
+        }
+        public bool UpdateQuantities(int modelId, int quantity)
+        {
+            string connStr = GetConnectionString();
+
+            // Lưu ý: Chúng ta dùng phép cộng (+) để cộng dồn vào các cột hiện tại
+            string sql = @"
+            UPDATE DeviceModel 
+            SET TotalQuantity = TotalQuantity + @Quantity, 
+            InStockQuantity = InStockQuantity + @Quantity, 
+            LastUpdatedAt = GETDATE() 
+            WHERE Id = @ModelId";
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Quantity", quantity);
+                cmd.Parameters.AddWithValue("@ModelId", modelId);
+
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                return rowsAffected > 0;
             }
         }
     }
