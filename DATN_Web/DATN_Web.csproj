@@ -1995,6 +1995,7 @@
     <Content Include="Views\Customers\DeleteCustomers.cshtml" />
     <Content Include="Views\Warehouse\CreateDeviceCategory.cshtml" />
     <Content Include="Views\DeviceModels\Index.cshtml" />
+    <Content Include="Views\DeviceModels\ImportModel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

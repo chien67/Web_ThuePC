@@ -79,5 +79,15 @@ namespace DATN_Web.BusinessLayer
             // Gọi DAL để cập nhật Model
             return _modelDal.UpdateQuantities(modelId, quantity);
         }
+        public DeviceModel GetModelDetails(int modelId)
+        {
+            if (modelId <= 0)
+            {
+                return null; // Trả về null nếu ID không hợp lệ
+            }
+
+            // Gọi phương thức tương ứng trong DAL
+            return _modelDal.GetModelById(modelId);
+        }
     }
 }

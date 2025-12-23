@@ -5,15 +5,13 @@ using System.Web;
 
 namespace DATN_Web.Models.Entities
 {
-    public class ImportEntryModel
+    public class DeviceImport
     {
-        public int EntryId { get; set; }
+        public int ImportId { get; set; }
         public int ModelId { get; set; }
-        public string ModelName { get; set; } 
+        public string Partner { get; set; } 
         public int ImportQuantity { get; set; }
-        public string Partner { get; set; }
-        public string Type { get; set; }
+        public byte ImportType { get; set; }
         public string Notes { get; set; }
-        public DateTime ImportDate { get; set; }
     }
 }

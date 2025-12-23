@@ -13,9 +13,7 @@ namespace DATN_Web.DataAccesLayer
     {
         private string GetConnectionString()
         {
-            // Lấy chuỗi kết nối từ Web.config/App.config
             return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
-
         }
 
         public List<DeviceModel> GetByCategoryId(int categoryId)
@@ -151,6 +149,41 @@ namespace DATN_Web.DataAccesLayer
 
                 return rowsAffected > 0;
             }
+        }
+        public DeviceModel GetModelById(int modelId)
+        {
+            string connStr = GetConnectionString();
+            DeviceModel model = null;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "SELECT * FROM DeviceModel WHERE Id = @ModelId";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@ModelId", modelId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    // Nếu tìm thấy bản ghi, khởi tạo đối tượng DeviceModel
+                    model = new DeviceModel
+                    {
+                        Id = (int)rd["Id"],
+
+                        CategoryId = (int)rd["CategoryId"],
+
+                        ModelName = rd["ModelName"].ToString(),
+                        Configuration = rd["Configuration"].ToString(),
+                        TotalQuantity = (int)rd["TotalQuantity"],
+                        InStockQuantity = (int)rd["InStockQuantity"],
+                        InUseQuantity = (int)rd["InUseQuantity"],
+                        BrokenQuantity = (int)rd["BrokenQuantity"],
+                        LastUpdatedAt = (DateTime)rd["LastUpdatedAt"]
+                    };
+                }
+            }
+            return model;
         }
     }
 }

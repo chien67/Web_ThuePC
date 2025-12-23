@@ -1,0 +1,40 @@
+﻿<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tạo mới thiết bị</h3>
+                </div>
+                <div class="card-body">
+                    <form class="table table-bordered table-hover" method="post" action="@Url.Action("SaveImport")">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="ModelId" value="@Model.ModelId" />
+
+                        <div class="mb-2">
+                            <label>Đối tác</label>
+                            <input type="text" name="Partner" class="form-control" required />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Số lượng</label>
+                            <input type="number" name="ImportQuantity" class="form-control" min="1" required />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Loại nhập</label>
+                            <select name="ImportType" class="form-control">
+                                <option value="1">Nhập mua</option>
+                                <option value="2">Mượn</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Xác nhận nhập
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

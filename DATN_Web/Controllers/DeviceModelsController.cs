@@ -31,7 +31,7 @@ namespace DATN_Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(DeviceModel model) // Đã đổi thành ActionResult
+        public ActionResult Create(DeviceModel model)
         {
             // ... Logic kiểm tra ModelState.IsValid và gọi BLL ...
 
@@ -98,6 +98,33 @@ namespace DATN_Web.Controllers
             // 2. Trả về View cùng với Model (hoặc View Model/ImportEntryModel)
             // Giả sử chúng ta truyền Model gốc để hiển thị tên thiết bị
             return View(modelToImport);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveImport(int modelId, int categoryId, int importQuantity, string partner, string jobType, string notes)
+        {
+            if (importQuantity <= 0 || modelId <= 0)
+            {
+                TempData["Error"] = "Vui lòng nhập số lượng hợp lệ.";
+                return RedirectToAction("Import", new { modelId = modelId });
+            }
+
+            // 1. Gọi BLL để thực hiện logic nghiệp vụ
+            // BLL sẽ đảm bảo cập nhật TotalQuantity và InStockQuantity trong DB
+            bool success = _bll.UpdateStock(modelId, importQuantity, partner, jobType, notes);
+
+            if (success)
+            {
+                TempData["Success"] = $"Nhập kho thành công {importQuantity} thiết bị Model ID: {modelId}.";
+                // Chuyển hướng về trang danh sách Model
+                return RedirectToAction("Index", new { categoryId = categoryId });
+            }
+            else
+            {
+                TempData["Error"] = "Lỗi hệ thống hoặc nghiệp vụ khi nhập kho.";
+                return RedirectToAction("Import", new { modelId = modelId });
+            }
         }
     }
 }
