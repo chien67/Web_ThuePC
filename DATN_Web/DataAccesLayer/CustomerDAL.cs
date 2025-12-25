@@ -15,10 +15,13 @@ namespace DATN_Web.DataAccesLayer
 {
     public class CustomerDAL
     {
-        private string connStr = ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
-
+        private string GetConnectionString()
+        {
+            return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
+        }
         public List<Customer> GetAll()
         {
+            string connStr = GetConnectionString();
             List<Customer> list = new List<Customer>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -46,6 +49,7 @@ namespace DATN_Web.DataAccesLayer
         }
         public bool CreateCustomers(Customer c)
         {
+            string connStr = GetConnectionString();
             try
             {
                 using (SqlConnection conn = new SqlConnection(connStr))
@@ -77,6 +81,33 @@ namespace DATN_Web.DataAccesLayer
                 throw new Exception("Lỗi Insert " + ex.Message);
             }
         }
+        public Customer GetById(int customerId)
+        {
+            string sql = @"SELECT * FROM Customers WHERE CustomerId = @CustomerId";
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@CustomerId", customerId);
+                conn.Open();
 
+                using (SqlDataReader rd = cmd.ExecuteReader())
+                {
+                    if (!rd.Read()) return null;
+
+                    return new Customer
+                    {
+                        CustomerId = (int)rd["CustomerId"],
+                        CustomerType = (byte)rd["CustomerType"],
+                        CustomerName = rd["CustomerName"].ToString(),
+                        RepresentativeName = rd["RepresentativeName"].ToString(),
+                        TaxCode = rd["TaxCode"].ToString(),
+                        Address = rd["Address"].ToString(),
+                        Phone = rd["Phone"].ToString(),
+                        Email = rd["Email"].ToString(),
+                        CustomerNote = rd["CustomerNote"].ToString()
+                    };
+                }
+            }
+        }
     }
 }

@@ -10,15 +10,25 @@ namespace DATN_Web.BusinessLayer
 
     public class CustomerBLL
     {
-        CustomerDAL dal = new CustomerDAL();
+        private readonly CustomerDAL _customerDAL;
+
+        public CustomerBLL(CustomerDAL customerDal)
+        {
+            _customerDAL = customerDal;
+        }
 
         public List<Customer> GetListCustomer()
         {
-            return dal.GetAll();
+            return _customerDAL.GetAll();
         }
         public bool CreateCustomers(Customer c)
         {
-           return dal.CreateCustomers(c);
+           return _customerDAL.CreateCustomers(c);
+        }
+        public Customer GetCustomerDetail(int id)
+        {
+            if (id <= 0) return null;
+            return _customerDAL.GetById(id);
         }
     }
 }

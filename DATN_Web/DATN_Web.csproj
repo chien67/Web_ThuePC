@@ -159,6 +159,7 @@
     <Compile Include="Controllers\WarehouseController.cs" />
     <Compile Include="DataAccesLayer\CustomerDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
+    <Compile Include="DataAccesLayer\DeviceImportDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceModelDAL.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -166,7 +167,8 @@
     <Compile Include="Models\Entities\Customer.cs" />
     <Compile Include="Models\Entities\DeviceCategory.cs" />
     <Compile Include="Models\Entities\DeviceModel.cs" />
-    <Compile Include="Models\Entities\ImportEntryModel.cs" />
+    <Compile Include="Models\Entities\DeviceImport.cs" />
+    <Compile Include="Models\ViewModels\DeviceImportVM.cs" />
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -1989,13 +1991,13 @@
     <Content Include="Views\Orders\DetailOrder.cshtml" />
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\CreateCustomers.cshtml" />
-    <Content Include="Views\Customers\DetailCustomers.cshtml" />
     <Content Include="Views\Warehouse\Index.cshtml" />
     <Content Include="Views\Orders\DeleteOrder.cshtml" />
     <Content Include="Views\Customers\DeleteCustomers.cshtml" />
     <Content Include="Views\Warehouse\CreateDeviceCategory.cshtml" />
     <Content Include="Views\DeviceModels\Index.cshtml" />
-    <Content Include="Views\DeviceModels\ImportModel.cshtml" />
+    <Content Include="Views\DeviceModels\Import.cshtml" />
+    <Content Include="Views\Customers\DetailCustomers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

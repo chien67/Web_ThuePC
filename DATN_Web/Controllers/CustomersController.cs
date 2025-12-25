@@ -10,11 +10,15 @@ namespace DATN_Web.Controllers
 {
     public class CustomersController : Controller
     {
-        CustomerBLL bll = new CustomerBLL();
+        private readonly CustomerBLL _bll;
         // GET: Customer
+        public CustomersController(CustomerBLL bll)
+        {
+            _bll = bll;
+        }
         public ActionResult Index()
         {
-            var data = bll.GetListCustomer();
+            var data = _bll.GetListCustomer();
             return View(data);
         }
         [HttpGet]
@@ -27,7 +31,7 @@ namespace DATN_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool result = bll.CreateCustomers(createCus);
+                bool result = _bll.CreateCustomers(createCus);
                 if (result)
                 {
                     TempData["msg"] = "Thêm mới khách hàng thành công";
@@ -39,9 +43,14 @@ namespace DATN_Web.Controllers
             }
             return View(createCus);
         }
-        public ActionResult DetailCustomers()
+        [HttpGet]
+        public ActionResult DetailCustomers(int id)
         {
-            return View();
+            var customer = _bll.GetCustomerDetail(id);
+            if (customer == null)
+                return HttpNotFound();
+
+            return View(customer);
         }
         public ActionResult DeleteCustomers()
         {

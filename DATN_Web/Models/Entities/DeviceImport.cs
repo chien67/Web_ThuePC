@@ -12,6 +12,6 @@ namespace DATN_Web.Models.Entities
         public string Partner { get; set; } 
         public int ImportQuantity { get; set; }
         public byte ImportType { get; set; }
-        public string Notes { get; set; }
+        public string Note { get; set; }
     }
 }

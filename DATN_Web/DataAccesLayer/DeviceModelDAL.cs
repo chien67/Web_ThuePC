@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using DATN_Web.Models;
+using DATN_Web.Models.Entities;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -130,7 +131,6 @@ namespace DATN_Web.DataAccesLayer
         {
             string connStr = GetConnectionString();
 
-            // Lưu ý: Chúng ta dùng phép cộng (+) để cộng dồn vào các cột hiện tại
             string sql = @"
             UPDATE DeviceModel 
             SET TotalQuantity = TotalQuantity + @Quantity, 
@@ -170,9 +170,7 @@ namespace DATN_Web.DataAccesLayer
                     model = new DeviceModel
                     {
                         Id = (int)rd["Id"],
-
                         CategoryId = (int)rd["CategoryId"],
-
                         ModelName = rd["ModelName"].ToString(),
                         Configuration = rd["Configuration"].ToString(),
                         TotalQuantity = (int)rd["TotalQuantity"],
@@ -185,5 +183,6 @@ namespace DATN_Web.DataAccesLayer
             }
             return model;
         }
+        
     }
 }

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Services.Description;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models;
+using DATN_Web.Models.Entities;
 
 namespace DATN_Web.BusinessLayer
 {
@@ -11,12 +13,14 @@ namespace DATN_Web.BusinessLayer
     {
         private readonly DeviceModelDAL _modelDal;
         private readonly DeviceCategoryDAL _categoryDal;
+        private readonly DeviceImportDAL _importDal;
 
-        public DeviceModelBLL(DeviceModelDAL modelDal, DeviceCategoryDAL categoryDal) // DI cho DAL
+        public DeviceModelBLL(DeviceModelDAL modelDal, DeviceCategoryDAL categoryDal,DeviceImportDAL importDal) // DI cho DAL
         {
 
             _categoryDal = categoryDal;
             _modelDal = modelDal;
+            _importDal = importDal;
         }
 
         public DeviceModelCategory GetByCategory(int categoryId)
@@ -71,19 +75,30 @@ namespace DATN_Web.BusinessLayer
             // Nếu số dòng bị ảnh hưởng lớn hơn 0 (nghĩa là xóa thành công ít nhất 1 dòng)
             return rows > 0;
         }
-        public bool UpdateStock(int modelId, int quantity, string partner, string jobType, string notes)
+        public bool UpdateStock(int modelId, int importQuantity, string partner, byte jobType, string note)
         {
-            // Nếu bạn có bảng ImportEntry, bạn sẽ lưu lịch sử nhập kho ở đây
-            // ...
+            // Lịch sử nhập kho
+            var imp = new DeviceImport
+            {
+                ModelId = modelId,
+                ImportQuantity = importQuantity,
+                Partner = partner,
+                ImportType = jobType,
+                Note = note
+            };
+
+            int inserted = _importDal.InsertImport(imp);
+            if (inserted <= 0)
+                return false;
 
             // Gọi DAL để cập nhật Model
-            return _modelDal.UpdateQuantities(modelId, quantity);
+            return _modelDal.UpdateQuantities(modelId, importQuantity);
         }
         public DeviceModel GetModelDetails(int modelId)
         {
             if (modelId <= 0)
             {
-                return null; // Trả về null nếu ID không hợp lệ
+                return null;
             }
 
             // Gọi phương thức tương ứng trong DAL

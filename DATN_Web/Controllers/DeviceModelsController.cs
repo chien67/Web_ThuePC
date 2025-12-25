@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
 using DATN_Web.Models;
+using DATN_Web.Models.Entities;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.Controllers
 {
@@ -33,22 +35,17 @@ namespace DATN_Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(DeviceModel model)
         {
-            // ... Logic kiểm tra ModelState.IsValid và gọi BLL ...
-
             if (_bll.CreateDeviceModel(model))
             {
-                // Trả về RedirectToActionResult, kế thừa từ ActionResult
                 TempData["Success"] = $"Thêm Model '{model.ModelName}' thành công. ID mới: {model.Id}";
                 return RedirectToAction("Index", new { categoryId = model.CategoryId });
             }
             else
             {
-                // Trả về ViewResult, kế thừa từ ActionResult
                 ModelState.AddModelError("", "Lỗi nghiệp vụ: Tên Model đã tồn tại.");
                 return View("Index", model);
             }
         }
-        // Lưu ý: Bạn nên nhận CategoryId để biết quay lại trang nào
         [HttpPost]
         [ValidateAntiForgeryToken] // Nên có để bảo mật
         public ActionResult DeleteModel(int modelId, int categoryId)
@@ -59,10 +56,7 @@ namespace DATN_Web.Controllers
                 // Chuyển hướng về trang danh sách (Index)
                 return RedirectToAction("Index", new { categoryId = categoryId });
             }
-
-            // Gọi BLL để xóa
             bool success = _bll.DeleteDeviceModel(modelId);
-
             if (success)
             {
                 TempData["Success"] = $"Xóa Model ID: {modelId} thành công.";
@@ -79,52 +73,49 @@ namespace DATN_Web.Controllers
         [HttpGet]
         public ActionResult Import(int modelId)
         {
-            if (modelId <= 0)
+            var deviceModel = _bll.GetModelDetails(modelId);
+            if (deviceModel == null) return HttpNotFound();
+
+            var vm = new DeviceImportVM
             {
-                TempData["Error"] = "ID Model không hợp lệ.";
-                // Chuyển hướng về trang danh mục
-                return RedirectToAction("Index", "Categories");
-            }
+                Import = new DeviceImport
+                {
+                    ModelId = deviceModel.Id,
+                    ImportType = 1 // default: mua mới
+                },
+                DeviceModelName = deviceModel.ModelName,
+                DeviceModelConfig = deviceModel.Configuration,
+                CategoryId = deviceModel.CategoryId
+            };
 
-            // 1. Gọi BLL để lấy thông tin chi tiết Model
-            var modelToImport = _bll.GetModelDetails(modelId);
-
-            if (modelToImport == null)
-            {
-                TempData["Error"] = "Không tìm thấy Model này.";
-                return RedirectToAction("Index", "Categories");
-            }
-
-            // 2. Trả về View cùng với Model (hoặc View Model/ImportEntryModel)
-            // Giả sử chúng ta truyền Model gốc để hiển thị tên thiết bị
-            return View(modelToImport);
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveImport(int modelId, int categoryId, int importQuantity, string partner, string jobType, string notes)
+        public ActionResult SaveImport(DeviceImportVM vm)
         {
-            if (importQuantity <= 0 || modelId <= 0)
+            var import = vm.Import;
+
+            if (import.ModelId <= 0 || import.ImportQuantity <= 0)
             {
                 TempData["Error"] = "Vui lòng nhập số lượng hợp lệ.";
-                return RedirectToAction("Import", new { modelId = modelId });
+                return RedirectToAction("Import", new { id = import.ModelId });
             }
 
-            // 1. Gọi BLL để thực hiện logic nghiệp vụ
-            // BLL sẽ đảm bảo cập nhật TotalQuantity và InStockQuantity trong DB
-            bool success = _bll.UpdateStock(modelId, importQuantity, partner, jobType, notes);
+            bool success = _bll.UpdateStock(import.ModelId, import.ImportQuantity, import.Partner, import.ImportType, import.Note);
 
             if (success)
             {
-                TempData["Success"] = $"Nhập kho thành công {importQuantity} thiết bị Model ID: {modelId}.";
-                // Chuyển hướng về trang danh sách Model
-                return RedirectToAction("Index", new { categoryId = categoryId });
+                TempData["Success"] = $"Nhập kho thành công {import.ImportQuantity} thiết bị.";
+                var deviceModel = _bll.GetModelDetails(import.ModelId);
+                return RedirectToAction("Index", "DeviceModels", new { categoryId = deviceModel.CategoryId });
             }
-            else
-            {
-                TempData["Error"] = "Lỗi hệ thống hoặc nghiệp vụ khi nhập kho.";
-                return RedirectToAction("Import", new { modelId = modelId });
-            }
+
+            TempData["Error"] = "Lỗi hệ thống hoặc nghiệp vụ khi nhập kho.";
+            return RedirectToAction("Import", new { id = import.ModelId });
         }
+
+
     }
 }
