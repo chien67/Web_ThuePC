@@ -81,11 +81,65 @@ namespace DATN_Web.Controllers
             TempData["Error"] = "Tạo đơn hàng thất bại.";
             return View(vm);
         }
-        public ActionResult DeleteOrder()
+
+        [HttpGet]
+        public ActionResult Edit(int id)
         {
-            return View();
+            var order = _orderBll.GetOrder(id); // BLL gọi DAL GetOrderById
+            if (order == null) return HttpNotFound();
+
+            var cus = _customerBll.GetCustomerDetail(order.CustomerId);
+
+            var vm = new CreateOrderVM
+            {
+                Customer = cus,
+                Order = order
+            };
+            return View("Edit", vm); // ✅ view mới, không quay create
         }
-        public ActionResult DetailOrder()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(CreateOrderVM vm)
+        {
+            if (vm == null || vm.Order == null)
+            {
+                TempData["Error"] = "Dữ liệu không hợp lệ.";
+                return View("EditOrder", vm);
+            }
+
+            // Update
+            bool ok = _orderBll.UpdateOrder(vm.Order);
+
+            if (ok)
+            {
+                TempData["Success"] = "Cập nhật đơn hàng thành công.";
+
+                // ✅ QUAY VỀ TRANG DETAIL CUSTOMER
+                return RedirectToAction(
+                    "DetailCustomers",
+                    "Customers",
+                    new { id = vm.Order.CustomerId }
+                );
+            }
+            System.Diagnostics.Debug.WriteLine(">>> POST Edit called");
+            System.Diagnostics.Debug.WriteLine("OrderId = " + vm?.Order?.OrderId);
+            System.Diagnostics.Debug.WriteLine("CustomerId = " + vm?.Order?.CustomerId);
+            System.Diagnostics.Debug.WriteLine("UnitPrice = " + vm?.Order?.UnitPrice);
+            System.Diagnostics.Debug.WriteLine("Deposit = " + vm?.Order?.DepositAmount);
+            System.Diagnostics.Debug.WriteLine("Quantity = " + vm?.Order?.Quantity);
+            System.Diagnostics.Debug.WriteLine("Delivery = " + vm?.Order?.DeliveryDate);
+            System.Diagnostics.Debug.WriteLine("Return = " + vm?.Order?.ReturnDate);
+            TempData["Error"] = "Cập nhật đơn hàng thất bại.";
+
+            // nạp lại customer để view không null khi lỗi
+            vm.Customer = _customerBll.GetCustomerDetail(vm.Order.CustomerId);
+            return RedirectToAction(
+    "DetailCustomers",
+    "Customers",
+    new { id = vm.Order.CustomerId, tab = "orders" }
+);
+        }
+        public ActionResult DeleteOrder()
         {
             return View();
         }

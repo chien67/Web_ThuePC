@@ -1995,7 +1995,6 @@
     <Content Include="Scripts\js\adminlte.min.js.map" />
     <Content Include="Views\Orders\Index.cshtml" />
     <Content Include="Views\Orders\CreateOrder.cshtml" />
-    <Content Include="Views\Orders\DetailOrder.cshtml" />
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\CreateCustomers.cshtml" />
     <Content Include="Views\Warehouse\Index.cshtml" />
@@ -2005,6 +2004,7 @@
     <Content Include="Views\DeviceModels\Index.cshtml" />
     <Content Include="Views\DeviceModels\Import.cshtml" />
     <Content Include="Views\Customers\DetailCustomers.cshtml" />
+    <Content Include="Views\Orders\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

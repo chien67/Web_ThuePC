@@ -44,11 +44,48 @@ namespace DATN_Web.BusinessLayer
             int orderId = _orderDal.InsertOrder(order);
             return orderId; // >0 là ok
         }
-        //Lấy danh sách đơn hàng của 1 id cụ thể
+        //Lấy danh sách đơn hàng của 1 id customer cụ thể
         public List<Order> GetOrdersOfCustomer(int customerId)
         {
             if (customerId <= 0) return new List<Order>();
-            return _orderDal.GetOrdersByCustomerId(customerId);
+            var list = _orderDal.GetOrdersByCustomerId(customerId);
+            var today = DateTime.Today;
+            foreach (var o in list)
+            {
+                if (!o.DeliveryDate.HasValue) continue;
+
+                var expireDate = o.DeliveryDate.Value.Date.AddDays(o.RentDays);
+
+                if (today >= expireDate)
+                    o.Status = 2; // Quá hạn
+            }
+
+            return list;
+        }
+        public Order GetOrder(int orderId)
+        {
+            if (orderId <= 0) return null;
+            return _orderDal.GetOrderById(orderId);
+        }
+        public bool UpdateOrder(Order order)
+        {
+            if (order == null) return false;
+            if (order.OrderId <= 0) return false;
+            if (order.CustomerId <= 0) return false;
+
+            if (!order.DeliveryDate.HasValue || !order.ReturnDate.HasValue) return false;
+            var start = order.DeliveryDate.Value.Date;
+            var end = order.ReturnDate.Value.Date;
+            if (end < start) return false;
+
+            if (string.IsNullOrWhiteSpace(order.DeviceRequirement)) return false;
+            if (order.Quantity <= 0) return false;
+            if (order.UnitPrice <= 0) return false;
+
+            // tính lại số ngày thuê
+            order.RentDays = (end - start).Days + 1;
+
+            return _orderDal.UpdateOrder(order);
         }
     }
 }

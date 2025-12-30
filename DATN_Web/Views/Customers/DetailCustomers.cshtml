@@ -70,21 +70,38 @@
                     <h3 class="card-title">Đơn hàng</h3>
                     <div class="project-actions text-right">
                         <div class="btn-group ">
-                            <a class="btn btn-info"
+                            <a class="btn btn-primary"
                                href="@Url.Action("CreateOrder", "Orders", new { customerId = Model.Customer.CustomerId })">
                                 <i class="fas fa-plus"></i> Thêm mới
                             </a>
-                            <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
-                                <i class="fas fa-folder">
-                                </i>
-                                Xem
-                            </a>
-                            <button type="button" class="btn btn-dark">Chi tiết</button>
                         </div>
                     </div>
                     <!-- /.card-body -->
                 </div>
                 <div class="card-body p-0">
+                    @{
+                        Func<byte, string> statusText = s =>
+                        {
+                            switch (s)
+                            {
+                                case 0: return "Chuẩn bị";
+                                case 1: return "Hoạt động";
+                                case 2: return "Quá hạn";
+                                default: return "Không rõ";
+                            }
+                        };
+
+                        Func<byte, string> statusCss = s =>
+                        {
+                            switch (s)
+                            {
+                                case 0: return "badge badge-secondary"; // Chuẩn bị
+                                case 1: return "badge badge-success";   // Hoạt động
+                                case 2: return "badge badge-danger";    // Quá hạn
+                                default: return "badge badge-dark";
+                            }
+                        };
+                    }
                     <table class="table table-bordered table-hover mb-0">
                         <thead class="text-center">
                             <tr>
@@ -137,9 +154,15 @@
                                         </td>
 
                                         <!-- Tình trạng -->
+                                        @{
+                                            var displayStatus = o.Status;
+                                            if (expire.HasValue && DateTime.Today >= expire.Value.Date)
+                                            {
+                                                displayStatus = 2; // Quá hạn
+                                            }
+                                        }
                                         <td class="text-center align-middle">
-                                            <span class="badge badge-secondary">@o.Status</span>
-                                            @* sau này bạn map Status => text như "Chuẩn bị" *@
+                                            <span class="@statusCss(o.Status)">@statusText(o.Status)</span>
                                         </td>
 
                                         <!-- Số ngày -->
@@ -155,7 +178,7 @@
                                         <!-- Action -->
                                         <td class="text-center align-middle">
                                             <a class="btn btn-info btn-sm"
-                                               href="@Url.Action("Detail","Orders", new { id = o.OrderId })">
+                                               href="@Url.Action("Edit","Orders", new { id = o.OrderId })">
                                                 Xem
                                             </a>
                                         </td>
