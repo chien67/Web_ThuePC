@@ -36,6 +36,9 @@ namespace DATN_Web
             builder.RegisterType<DeviceCategoryDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<DeviceImportDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<CustomerDAL>().AsSelf().InstancePerRequest();
+            builder.RegisterType<OrderDAL>().AsSelf().InstancePerRequest();
+            builder.RegisterType<OrderDetailDAL>().AsSelf().InstancePerRequest();
+            builder.RegisterType<OrderBLL>().AsSelf().InstancePerRequest();
 
             // ...
 

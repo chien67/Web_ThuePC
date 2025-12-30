@@ -1,90 +1,178 @@
-﻿
+﻿@model DATN_Web.Models.ViewModels.CreateOrderVM
 @{ ViewBag.Title = "Tạo mới đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<!-- Main content -->
 <section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- left column -->
-            <div class="col-md-6">
-                <!-- general form elements -->
-                <div class="card card-primary">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <form method="post" action="@Url.Action("CreateOrder","Orders")">
+                    @Html.AntiForgeryToken()
+                    <!-- nếu cần customerId -->
+                    <input type="hidden" name="Order.CustomerId" value="@Model.Order.CustomerId" />
                     <div class="card-header">
-                        <h3 class="card-title">Thông tin khách hàng</h3>
+                        <h3 class="card-title">
+                            1. Thông tin khách hàng
+                        </h3>
+                        <div class="card-tools">
+                            <span class="badge badge-light">
+                                Ngày tạo: @DateTime.Now.ToString("dd/MM/yyyy")
+                            </span>
+                        </div>
                     </div>
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <form role="form">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Tên khách hàng</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Tên khách hàng">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="mr-2">
+                                <span class="badge badge-primary p-2">
+                                    <i class="fas fa-building"></i>
+                                </span>
                             </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Đại diện</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Đại diện">
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Điện thoại</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Điện thoại">
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Địa chỉ giao hàng</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Địa chỉ giao hàng">
+                            <div>
+                                <div class="text-muted" style="line-height:1">Khách hàng</div>
+                                <div class="h5 mb-0 font-weight-bold">@Model.Customer.CustomerName</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <!-- general form elements disabled -->
-                            <!-- /.card -->
-                        </div>
-                    </form>
-                    <!--/.col (right) -->
-                </div>
-                <!-- /.row -->
-            </div><!-- /.container-fluid -->
-            <div class="card card-warning">
-                <div class="card-header">
-                    <h3 class="card-title">Thông tin đơn hàng</h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <form role="form">
                         <div class="row">
-                            <div class="col-sm-6">
-                                <!-- text input -->
-                                <div class="form-group">
-                                    <label>Thời gian giao:</label>
-                                    <input type="text" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask="" im-insert="false">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <i class="fas fa-user mr-1"></i>
+                                    <span class="text-muted">Đại diện:</span>
+                                    <b>@Model.Customer.RepresentativeName</b>
+                                </div>
+
+                                <div class="mb-2">
+                                    <i class="fas fa-id-card mr-1"></i>
+                                    <span class="text-muted">MST/CCCD:</span>
+                                    <b>@Model.Customer.TaxCode</b>
                                 </div>
                             </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label>Thời gian nhận</label>
-                                    <input type="time" class="form-control" placeholder="Enter ...">
+
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <i class="fas fa-phone mr-1"></i>
+                                    <span class="text-muted">Điện thoại:</span>
+                                    <b>@Model.Customer.Phone</b>
+                                </div>
+
+                                <div class="mb-2">
+                                    <i class="fas fa-envelope mr-1"></i>
+                                    <span class="text-muted">Email:</span>
+                                    <b>@Model.Customer.Email</b>
                                 </div>
                             </div>
                         </div>
-                        <!-- textarea -->
-                        <div class="form-group">
-                            <label>Thông tin yêu cầu</label>
-                            <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                        <div class="form-group mt-2 mb-0">
+                            <label class="mb-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                Địa chỉ giao hàng
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="Order.DeliveryAddress"
+                                   value="@Model.Order.DeliveryAddress" />
                         </div>
-                        <!-- input states -->
-                        <div class="form-group">
-                            <label>Thời gian</label>
-                            <input type="text" class="form-control" placeholder="Enter ...">
+                    </div>
+                    <!--2. -->
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            2. Thiết bị thuê
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Ngày giao / Ngày trả -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ngày giao</label>
+                                    <div class="input-group">
+                                        <input type="date" class="form-control"
+                                               name="Order.DeliveryDate"
+                                               value="@(Model.Order.DeliveryDate?.ToString("yyyy-MM-dd"))" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ngày trả</label>
+                                    <div class="input-group">
+                                        <input type="date" class="form-control"
+                                               name="Order.ReturnDate"
+                                               value="@(Model.Order.ReturnDate?.ToString("yyyy-MM-dd"))" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Đơn giá</label>
-                            <input type="text" class="form-control" placeholder="Enter ...">
+
+                        <!-- Bảng thiết bị -->
+                        <div class="table-responsive mt-2">
+                            <table class="table table-bordered table-hover" id="detailTable">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>Yêu cầu thiết bị</th>
+                                        <th style="width:120px;">Số lượng</th>
+                                        <th style="width:120px;">Số ngày</th>
+                                        <th style="width:150px;">Đơn giá</th>
+                                        <th style="width:60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <textarea name="Order.DeviceRequirement"
+                                                      class="form-control" rows="2"></textarea>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="Order.Quantity"
+                                                   class="form-control" min="1" />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="Order.RentDays"
+                                                   class="form-control" min="1" />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="Order.UnitPrice"
+                                                   class="form-control" min="0" step="0.01" />
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <button type="button" class="btn btn-danger btn-sm btn-remove">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </form>
-                </div>
-                <!-- /.card-body -->
+
+                    </div>
+
+                    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn btn-success btn-sm" id="btnAddRow">
+                            <i class="fas fa-plus"></i> Thêm dòng
+                        </button>
+
+                        <div>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save mr-1"></i> Lưu
+                            </button>
+                            <a href="@Url.Action("DetailCustomers","Customers", new { id = Model.Customer.CustomerId })"
+                               class="btn btn-secondary px-4 ml-2">
+                                <i class="fas fa-times mr-1"></i> Thoát
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </section>
-
-
+@section Scripts {
+    <script>
+    </script>
+}

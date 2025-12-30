@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Antlr.Runtime.Tree;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models;
 
@@ -29,6 +30,11 @@ namespace DATN_Web.BusinessLayer
         {
             if (id <= 0) return null;
             return _customerDAL.GetById(id);
+        }
+        public Customer GetById(int id)
+        {
+            if (id <= 0) return null;
+            return (_customerDAL.GetById(id));
         }
     }
 }

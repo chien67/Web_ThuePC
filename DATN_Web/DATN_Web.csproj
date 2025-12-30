@@ -152,6 +152,7 @@
     <Compile Include="BusinessLayer\CustomerBLL.cs" />
     <Compile Include="BusinessLayer\DeviceCategoryBLL.cs" />
     <Compile Include="BusinessLayer\DeviceModelBLL.cs" />
+    <Compile Include="BusinessLayer\OrderBLL.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\DeviceModelsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -161,6 +162,8 @@
     <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceImportDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceModelDAL.cs" />
+    <Compile Include="DataAccesLayer\OrderDAL.cs" />
+    <Compile Include="DataAccesLayer\OrderDetailDAL.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -168,6 +171,10 @@
     <Compile Include="Models\Entities\DeviceCategory.cs" />
     <Compile Include="Models\Entities\DeviceModel.cs" />
     <Compile Include="Models\Entities\DeviceImport.cs" />
+    <Compile Include="Models\Entities\Order.cs" />
+    <Compile Include="Models\Entities\OrderDetail.cs" />
+    <Compile Include="Models\ViewModels\CreateOrderVM.cs" />
+    <Compile Include="Models\ViewModels\CustomerDetailVM.cs" />
     <Compile Include="Models\ViewModels\DeviceImportVM.cs" />
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

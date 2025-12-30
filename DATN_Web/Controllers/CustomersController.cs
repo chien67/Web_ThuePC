@@ -5,20 +5,23 @@ using System.Web;
 using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
 using DATN_Web.Models;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.Controllers
 {
     public class CustomersController : Controller
     {
-        private readonly CustomerBLL _bll;
+        private readonly CustomerBLL _customerBll;
+        private readonly OrderBLL _orderBLL;
         // GET: Customer
-        public CustomersController(CustomerBLL bll)
+        public CustomersController(CustomerBLL customerBll, OrderBLL orderBLL)
         {
-            _bll = bll;
+            _customerBll = customerBll;
+            _orderBLL = orderBLL;
         }
         public ActionResult Index()
         {
-            var data = _bll.GetListCustomer();
+            var data = _customerBll.GetListCustomer();
             return View(data);
         }
         [HttpGet]
@@ -31,7 +34,7 @@ namespace DATN_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool result = _bll.CreateCustomers(createCus);
+                bool result = _customerBll.CreateCustomers(createCus);
                 if (result)
                 {
                     TempData["msg"] = "Thêm mới khách hàng thành công";
@@ -46,11 +49,16 @@ namespace DATN_Web.Controllers
         [HttpGet]
         public ActionResult DetailCustomers(int id)
         {
-            var customer = _bll.GetCustomerDetail(id);
+            var customer = _customerBll.GetCustomerDetail(id);
             if (customer == null)
                 return HttpNotFound();
+            var vm = new CustomerDetailVM
+            {
+                Customer = customer,
+                Orders = _orderBLL.GetOrdersOfCustomer(id)
+            };
 
-            return View(customer);
+            return View(vm);
         }
         public ActionResult DeleteCustomers()
         {

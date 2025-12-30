@@ -1,127 +1,223 @@
-﻿@{
+﻿@model DATN_Web.Models.ViewModels.CustomerDetailVM
+@{
     ViewBag.Title = "Chi tiết khách hàng";
 }
-<div class="row">
-    <div class="col-md-6">
-        <!-- Line chart -->
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="far fa-chart-bar"></i>
-                    Khách hàng
-                </h3>
-                <div class="project-actions text-right">
-                    <a class="btn btn-danger btn-sm" style="" href="@Url.Action("EditCustomers","Customers")">
-                        Sửa thông tin
-                    </a>
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- Line chart -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-building"></i>
+                                Khách hàng
+                            </h3>
+                            <div class="project-actions text-right">
+                                <a class="btn btn-danger btn-sm" style="" href="@Url.Action("EditCustomers","Customers")">
+                                    Sửa thông tin
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="line-chart" style="height: 200px;">
+                                <div>
+                                    <h3 class="mb-2 font-weight-bold">@Model.Customer.CustomerName</h3>
+                                </div>
+                                <div>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-1">
+                                            <i class="fas fa-user mr-1"></i>
+                                            Đại diện: <b>@Model.Customer.RepresentativeName</b>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-phone mr-1"></i>
+                                            Điện thoại: <b>@Model.Customer.Phone</b>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <i class="fas fa-id-card"></i> Thông tin MST/CCCD:: <b>@Model.Customer.TaxCode</b>
+                                </div>
+                                <div><i class="fas fa-map-marker-alt"></i> Địa chỉ: <b>@Model.Customer.Address</b></div>
+                            </div>
+                        </div>
+                        <!-- /.card-body-->
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <!-- Bar chart -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="far fa-sticky-note"></i>
+                                Ghi chú
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <textarea name="ghichukhachhang" id="ghichukhachhang" class="form-control" disabled=""></textarea>
+                        </div>
+                        <!-- /.card-body-->
+                    </div>
+                    <!-- /.card -->
                 </div>
             </div>
-            <div class="card-body">
-                <div id="line-chart" style="height: 300px;"></div>
+
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Đơn hàng</h3>
+                    <div class="project-actions text-right">
+                        <div class="btn-group ">
+                            <a class="btn btn-info"
+                               href="@Url.Action("CreateOrder", "Orders", new { customerId = Model.Customer.CustomerId })">
+                                <i class="fas fa-plus"></i> Thêm mới
+                            </a>
+                            <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
+                                <i class="fas fa-folder">
+                                </i>
+                                Xem
+                            </a>
+                            <button type="button" class="btn btn-dark">Chi tiết</button>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered table-hover mb-0">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Ngày giao</th>
+                                <th>Nội dung</th>
+                                <th>Tình trạng</th>
+                                <th>Số ngày</th>
+                                <th>Hết hạn</th>
+                                <th style="width:90px;"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (Model.Orders == null || !Model.Orders.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Chưa có đơn hàng</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var o in Model.Orders)
+                                {
+                                    // Hết hạn: DeliveryDate + RentDays (đúng như hình bạn gửi)
+                                    var expire = o.DeliveryDate.HasValue
+                                        ? o.DeliveryDate.Value.Date.AddDays(o.RentDays)
+                                        : (DateTime?)null;
+
+                                    <tr>
+                                        <!-- Ngày giao -->
+                                        <td class="text-center align-middle">
+                                            @(o.DeliveryDate?.ToString("dd/MM/yyyy"))
+                                        </td>
+
+                                        <!-- Nội dung (nhiều dòng giống hình) -->
+                                        <td class="align-middle">
+                                            <div class="text-primary fw-bold">
+                                                Yêu cầu: @o.DeviceRequirement
+                                            </div>
+                                            <div class="text-primary fw-bold">
+                                                Thông tin: | @o.Quantity Máy | @o.RentDays Ngày | @String.Format("{0:N0}", o.UnitPrice) VNĐ |
+                                            </div>
+                                            <div>
+                                                <a href="@Url.Action("Detail","Orders", new { id = o.OrderId })">► Chi tiết</a>
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(o.Note))
+                                            {
+                                                <div class="text-danger fw-bold">(Ghi chú: @o.Note)</div>
+                                            }
+                                        </td>
+
+                                        <!-- Tình trạng -->
+                                        <td class="text-center align-middle">
+                                            <span class="badge badge-secondary">@o.Status</span>
+                                            @* sau này bạn map Status => text như "Chuẩn bị" *@
+                                        </td>
+
+                                        <!-- Số ngày -->
+                                        <td class="text-center align-middle">
+                                            @o.RentDays ngày
+                                        </td>
+
+                                        <!-- Hết hạn -->
+                                        <td class="text-center align-middle">
+                                            @(expire?.ToString("dd/MM/yyyy"))
+                                        </td>
+
+                                        <!-- Action -->
+                                        <td class="text-center align-middle">
+                                            <a class="btn btn-info btn-sm"
+                                               href="@Url.Action("Detail","Orders", new { id = o.OrderId })">
+                                                Xem
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- /.card-body-->
-        </div>
-
-    </div>
-    <div class="col-md-6">
-        <!-- Bar chart -->
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="far fa-chart-bar"></i>
-                    Ghi chú
-                </h3>
-
-            </div>
-            <div class="card-body">
-                @*<div id="bar-chart" style="height: 300px;"></div>*@
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Thiết bị</h3>
+                    <div class="project-actions text-right">
+                        <div class="btn-group ">
+                            <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
+                                <i class="fas fa-folder">
+                                </i>
+                                Xem
+                            </a>
+                            <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+                                Sửa
+                            </a>
+                            <a class="btn btn-danger" href="@Url.Action("DeleteCustomers","Customers")">
+                                <i class="fas fa-trash">
+                                </i>
+                                Xoá
+                            </a>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
                 <div class="card-body">
-                    <textarea name="ghichukhachhang" id="ghichukhachhang" class="form-control" disabled=""></textarea>
+                    <table id="example2" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ngày giao</th>
+                                <th>Danh mục</th>
+                                <th>Model</th>
+                                <th>Cấu hình</th>
+                                <th>Số lượng</th>
+                                <th>Chức năng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- /.card-body-->
-        </div>
-        <!-- /.card -->
-    </div>
-</div>
-
-<div class="card card-success">
-    <div class="card-header">
-        <h3 class="card-title">Thiết bị</h3>
-        <div class="project-actions text-right">
-            <div class="btn-group ">
-                <button type="button" class="btn btn-info">Thêm mới</button>
-                <button type="button" class="btn btn-dark">Chi tiết</button>
+            <div class="card card-success card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-edit"></i>
+                        Lịch Sử Cập nhập
+                    </h3>
+                </div>
+                <div class="card-body">
+                </div>
             </div>
         </div>
-        <!-- /.card-body -->
     </div>
-    <div class="card-body">
-        <table id="example2" class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>Ngày giao</th>
-                    <th>Nội dung</th>
-                    <th>Tình trạng</th>
-                    <th>Ngày hết hạn</th>
-                    <th>X</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="card card-success">
-    <div class="card-header">
-        <h3 class="card-title">ĐƠN HÀNG</h3>
-        <div class="project-actions text-right">
-            <div class="btn-group ">
-                    <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
-                        <i class="fas fa-folder">
-                        </i>
-                        Xem
-                    </a>
-                    <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
-                        <i class="fas fa-pencil-alt">
-                        </i>
-                        Sửa
-                    </a>
-                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
-                        <i class="fas fa-trash">
-                        </i>
-                        Xoá
-                    </a>
-            </div>
-        </div>
-        <!-- /.card-body -->
-    </div>
-    <div class="card-body">
-        <table id="example2" class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>Ngày giao</th>
-                    <th>Danh mục</th>
-                    <th>Model</th>
-                    <th>Cấu hình</th>
-                    <th>Số lượng</th>
-                    <th>Chức năng</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="card card-success card-outline">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-edit"></i>
-            Lịch Sử Cập nhập
-        </h3>
-    </div>
-    <div class="card-body">
-    </div>
-</div>
+</section>

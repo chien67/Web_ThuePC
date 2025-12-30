@@ -111,12 +111,6 @@
                                         <p>Thêm mới khách hàng</p>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("DetailCustomers","Customers")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Chi tiết khách hàng</p>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item has-treeview">
@@ -140,12 +134,6 @@
                                         <p>Chi tiết đơn hàng</p>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("CreateOrder","Orders")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Tạo đơn hàng mới</p>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item has-treeview">
@@ -167,12 +155,6 @@
                                     <a href="@Url.Action("CreateDeviceCategory","Warehouse")" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Thêm danh mục</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("DetailDeviceCategory","Warehouse")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Chi tiết danh mục</p>
                                     </a>
                                 </li>
                             </ul>
@@ -390,12 +372,7 @@
             });
         });
     </script>
-    @*Hiện thẻ thêm mới Model*@
-    @*<script>
-        document.getElementById("btnToggle").onclick = function () {
-            document.getElementById("addForm").classList.toggle("d-none");
-        };
-    </script>*@
+    @RenderSection("Scripts", required: false)
 </body>
 
 </html>
