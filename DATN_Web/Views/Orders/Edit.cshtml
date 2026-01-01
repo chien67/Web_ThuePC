@@ -1,7 +1,8 @@
-﻿@{ ViewBag.Title = "Chi tiết đơn hàng";
+﻿@model DATN_Web.Models.ViewModels.CreateOrderVM
+@{ ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@using System.Globalization
+
 <section class="content">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-9">
@@ -115,8 +116,10 @@
                                 <div class="form-group">
                                     <label>Tình trạng đơn hàng: </label>
                                     <select name="Order.Status" class="form-control">
-                                        <option value="0" @(Model.Order.Status == 0 ? "selected" : "")>Chuẩn bị</option>
-                                        <option value="1" @(Model.Order.Status == 1 ? "selected" : "")>Hoạt động</option>
+                                        <option value="0" @(Model.Order.Status == 0 ? "selected" : "")>Đang chuẩn bị</option>
+                                        <option value="1" @(Model.Order.Status == 1 ? "selected" : "")>Đã giao hàng</option>
+                                        <option value="2" @(Model.Order.Status == 2 ? "selected" : "")>Quá hạn</option>
+                                        <option value="3" @(Model.Order.Status == 3 ? "selected" : "")>Kết thúc đơn</option>
                                     </select>
                                 </div>
                             </div>
@@ -150,14 +153,10 @@
                                                    value="@Model.Order.RentDays" />
                                         </td>
                                         <td>
-                                            <input type="number" name="Order.UnitPrice"
-                                                   class="form-control" min="0" step="0.01"
-                                                   value="@(Model.Order.UnitPrice.ToString(CultureInfo.InvariantCulture))" />
+                                            @Html.TextBoxFor(m => m.Order.UnitPrice, "{0:0.00}",new { @class = "form-control" })
                                         </td>
                                         <td>
-                                            <input type="number" name="Order.DepositAmount"
-                                                   class="form-control" min="0" step="0.01"
-                                                   value="@(Model.Order.DepositAmount.ToString(CultureInfo.InvariantCulture))" />
+                                            @Html.TextBoxFor(m => m.Order.DepositAmount, "{0:0.00}", new { @class = "form-control" })
                                         </td>
                                     </tr>
                                 </tbody>
@@ -165,14 +164,28 @@
                         </div>
                     </div>
 
-                    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                        <button type="submit" class="btn btn-primary px-4">
+                    <div class="card-footer bg-white d-flex justify-content-end align-items-center gap-2">
+                        <button type="submit" class="btn btn-outline-success px-4">
                             <i class="fas fa-save mr-1"></i> Lưu
                         </button>
-                        <a href="@Url.Action("DetailCustomers","Customers", new { id = Model.Customer.CustomerId })"
+                        <button type="submit"
+                                class="btn btn-outline-primary px-4 mr-2"
+                                formaction="@Url.Action("FinishOrder", "Orders")"
+                                formmethod="post"
+                                onclick="return confirm('Bạn có chắc chắn muốn KẾT THÚC đơn hàng này không?');">
+                            <i class="fas fa-check-circle mr-1"></i> Kết thúc đơn hàng
+                        </button>
+                        <button type="submit"
+                                class="btn btn-outline-danger px-4"
+                                formaction="@Url.Action("DeleteOrder", "Orders")"
+                                formmethod="post"
+                                onclick="return confirm('Bạn có chắc chắn muốn huỷ đơn hàng này không?');">
+                            <i class="fas fa-trash mr-1"></i> Huỷ đơn hàng
+                        </button>
+                        <button href="@Url.Action("DetailCustomers","Customers", new { id = Model.Customer.CustomerId })"
                            class="btn btn-secondary px-4 ml-2">
                             <i class="fas fa-times mr-1"></i> Thoát
-                        </a>
+                        </button>
                     </div>
 
                 </form>

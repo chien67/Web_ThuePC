@@ -109,7 +109,6 @@ namespace DATN_Web.Controllers
 
             // Update
             bool ok = _orderBll.UpdateOrder(vm.Order);
-
             if (ok)
             {
                 TempData["Success"] = "Cập nhật đơn hàng thành công.";
@@ -121,27 +120,47 @@ namespace DATN_Web.Controllers
                     new { id = vm.Order.CustomerId }
                 );
             }
-            System.Diagnostics.Debug.WriteLine(">>> POST Edit called");
-            System.Diagnostics.Debug.WriteLine("OrderId = " + vm?.Order?.OrderId);
-            System.Diagnostics.Debug.WriteLine("CustomerId = " + vm?.Order?.CustomerId);
-            System.Diagnostics.Debug.WriteLine("UnitPrice = " + vm?.Order?.UnitPrice);
-            System.Diagnostics.Debug.WriteLine("Deposit = " + vm?.Order?.DepositAmount);
-            System.Diagnostics.Debug.WriteLine("Quantity = " + vm?.Order?.Quantity);
-            System.Diagnostics.Debug.WriteLine("Delivery = " + vm?.Order?.DeliveryDate);
-            System.Diagnostics.Debug.WriteLine("Return = " + vm?.Order?.ReturnDate);
             TempData["Error"] = "Cập nhật đơn hàng thất bại.";
 
             // nạp lại customer để view không null khi lỗi
             vm.Customer = _customerBll.GetCustomerDetail(vm.Order.CustomerId);
-            return RedirectToAction(
-    "DetailCustomers",
-    "Customers",
-    new { id = vm.Order.CustomerId, tab = "orders" }
-);
+            return RedirectToAction("DetailCustomers","Customers",new { id = vm.Order.CustomerId, tab = "orders" });
         }
-        public ActionResult DeleteOrder()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteOrder(CreateOrderVM vm)
         {
-            return View();
+            int orderId = vm?.Order?.OrderId ?? 0;
+            int customerId = vm?.Order?.CustomerId ?? 0;
+
+            bool ok = _orderBll.DeleteOrder(orderId);
+
+            TempData[ok ? "Success" : "Error"] = ok ? "Đã xoá đơn hàng." : "Xoá thất bại.";
+            return RedirectToAction("DetailCustomers", "Customers", new { id = customerId, tab = "orders" });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult FinishOrder(CreateOrderVM vm)
+        {
+            int orderId = vm?.Order?.OrderId ?? 0;
+            int customerId = vm?.Order?.CustomerId ?? 0;
+
+            if (orderId <= 0)
+            {
+                TempData["Error"] = "Đơn hàng không hợp lệ.";
+                return RedirectToAction("DetailCustomers", "Customers", new { id = customerId });
+            }
+
+            bool ok = _orderBll.FinishOrder(orderId);
+
+            TempData[ok ? "Success" : "Error"] =
+                ok ? "Đã kết thúc đơn hàng." : "Kết thúc đơn hàng thất bại.";
+
+            return RedirectToAction(
+                "DetailCustomers",
+                "Customers",
+                new { id = customerId, tab = "orders" }
+            );
         }
     }
 }

@@ -117,19 +117,22 @@ namespace DATN_Web.DataAccesLayer
         }
         public bool UpdateOrder(Order o)
         {
-            string sql = @"UPDATE Orders
-                   SET CustomerId = @CustomerId,
-                       DeviceRequirement = @DeviceRequirement,
-                       DeliveryDate = @DeliveryDate,
-                       ReturnDate = @ReturnDate,
-                       RentDays = @RentDays,
-                       Quantity = @Quantity,
-                       DeliveryAddress = @DeliveryAddress,
-                       UnitPrice = @UnitPrice,
-                       DepositAmount = @DepositAmount,
-                       Status = @Status
-                   WHERE OrderId = @OrderId";
-
+            string sql = @"
+                           UPDATE dbo.Orders
+                           SET
+                               CustomerId        = @CustomerId,
+                               DeviceRequirement = @DeviceRequirement,
+                               DeliveryDate      = @DeliveryDate,
+                               ReturnDate        = @ReturnDate,
+                               RentDays          = @RentDays,
+                               Quantity          = @Quantity,
+                               DeliveryAddress   = @DeliveryAddress,
+                               UnitPrice         = @UnitPrice,
+                               DepositAmount     = @DepositAmount,
+                               Status            = @Status
+                           WHERE
+                               OrderId = @OrderId;
+                           ";
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -153,13 +156,38 @@ namespace DATN_Web.DataAccesLayer
                 p.Value = o.UnitPrice;
 
                 var dep = cmd.Parameters.Add("@DepositAmount", SqlDbType.Decimal);
-                dep.Precision = 18; p.Scale = 2;
+                dep.Precision = 18; dep.Scale = 2;
                 dep.Value = o.DepositAmount;
 
-                var note = cmd.Parameters.Add("@Note", SqlDbType.NVarChar, 2000);
-                note.Value = string.IsNullOrWhiteSpace(o.Note) ? (object)DBNull.Value : o.Note.Trim();
-
                 cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = o.Status;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        public bool DeleteOrder(int orderId)
+        {
+            const string sql = @"DELETE FROM dbo.Orders WHERE OrderId = @OrderId;";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@OrderId", SqlDbType.Int).Value = orderId;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        //update hoàn thành đơn hàng
+        public bool FinishOrder(int orderId)
+        {
+            const string sql = @"UPDATE Orders SET Status = @Status,ReturnDate = CAST(GETDATE() AS date) WHERE OrderId = @OrderId;";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@OrderId", SqlDbType.Int).Value = orderId;
+                cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 3;
 
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;

@@ -87,6 +87,7 @@
                                 case 0: return "Chuẩn bị";
                                 case 1: return "Hoạt động";
                                 case 2: return "Quá hạn";
+                                case 3: return "Kết thúc";
                                 default: return "Không rõ";
                             }
                         };
@@ -95,14 +96,15 @@
                         {
                             switch (s)
                             {
-                                case 0: return "badge badge-secondary"; // Chuẩn bị
-                                case 1: return "badge badge-success";   // Hoạt động
+                                case 0: return "badge badge-warning";   // Chuẩn bị
+                                case 1: return "badge badge-primary";   // Đã giao
                                 case 2: return "badge badge-danger";    // Quá hạn
+                                case 3: return "badge badge-success";   // Kết thúc
                                 default: return "badge badge-dark";
                             }
                         };
                     }
-                    <table class="table table-bordered table-hover mb-0">
+                    <table id="example2" class="table table-bordered table-hover mb-0">
                         <thead class="text-center">
                             <tr>
                                 <th>Ngày giao</th>
@@ -123,7 +125,7 @@
                             }
                             else
                             {
-                                foreach (var o in Model.Orders)
+                                foreach (var o in Model.Orders.Where(x => x.Status != 3))
                                 {
                                     // Hết hạn: DeliveryDate + RentDays (đúng như hình bạn gửi)
                                     var expire = o.DeliveryDate.HasValue
@@ -147,10 +149,6 @@
                                             <div>
                                                 <a href="@Url.Action("Detail","Orders", new { id = o.OrderId })">► Chi tiết</a>
                                             </div>
-                                            @if (!string.IsNullOrWhiteSpace(o.Note))
-                                            {
-                                                <div class="text-danger fw-bold">(Ghi chú: @o.Note)</div>
-                                            }
                                         </td>
 
                                         <!-- Tình trạng -->
