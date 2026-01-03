@@ -155,5 +155,18 @@ namespace DATN_Web.DataAccesLayer
                 return cmd.ExecuteNonQuery();
             }
         }
+        public bool DeleteCustomer(int customerId)
+        {
+            const string sql = @"DELETE FROM dbo.Customers WHERE CustomerId = @CustomerId;";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@CustomerId", SqlDbType.Int).Value = customerId;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
     }
 }

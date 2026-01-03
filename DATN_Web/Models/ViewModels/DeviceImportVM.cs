@@ -15,5 +15,6 @@ namespace DATN_Web.Models.ViewModels
 
         // nếu cần quay lại danh sách theo category
         public int CategoryId { get; set; }
+
     }
 }

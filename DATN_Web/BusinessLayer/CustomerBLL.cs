@@ -41,5 +41,11 @@ namespace DATN_Web.BusinessLayer
             // Có thể thêm validate nghiệp vụ tại đây nếu muốn
             return _customerDAL.UpdateCustomer(c);
         }
+        public bool DeleteCustomer(int customerId)
+        {
+            if (customerId <= 0) return false;
+            var order = _customerDAL.DeleteCustomer(customerId);
+            return _customerDAL.DeleteCustomer(customerId);
+        }
     }
 }

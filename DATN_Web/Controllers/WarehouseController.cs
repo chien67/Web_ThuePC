@@ -16,7 +16,7 @@ namespace DATN_Web.Controllers
         // GET: Warehouse
         public ActionResult Index()
         {
-            var data = bll.GetAll();
+            var data = bll.GetAllWithStats();
             return View(data);
         }
         [HttpGet]

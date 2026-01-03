@@ -38,8 +38,7 @@ namespace DATN_Web.Controllers
                 if (result)
                 {
                     TempData["msg"] = "Thêm mới khách hàng thành công";
-                    return RedirectToAction("CreateCustomers");
-                    //return RedirectToAction("Index");
+                    return RedirectToAction("Index");
                 }
                 TempData["msg"] = "Lỗi: Thêm khách hàng thất bại";
 
@@ -60,10 +59,14 @@ namespace DATN_Web.Controllers
 
             return View(vm);
         }
-        public ActionResult DeleteCustomers()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteCustomers(int id)
         {
-            return View();
+            _customerBll.DeleteCustomer(id);
+            return RedirectToAction("Index");
         }
+
         // GET: Customers/Edit/5
         public ActionResult EditCustomers(int id)
         {

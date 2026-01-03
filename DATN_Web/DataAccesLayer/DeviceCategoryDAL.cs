@@ -6,6 +6,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Web;
 using DATN_Web.Models;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -110,6 +111,44 @@ namespace DATN_Web.DataAccesLayer
                 }
             }
             return null;
+        }
+        // Tổng hợp số lượng model và số lượng tổng máy
+        public List<DeviceCategoryVM> GetCategoryStats()
+        {
+            var list = new List<DeviceCategoryVM>();
+            string connStr = GetConnectionString();
+            var sql = @"
+            SELECT
+                c.Id,
+                c.CategoryName,
+                COUNT(m.Id)                     AS ModelCount,
+                ISNULL(SUM(m.TotalQuantity), 0) AS TotalQuantity,
+                c.LastUpdated
+            FROM dbo.DeviceCategory c
+            LEFT JOIN dbo.DeviceModel m ON m.CategoryId = c.Id
+            GROUP BY c.Id, c.CategoryName, c.LastUpdated
+            ORDER BY c.Id;";
+
+            using (var conn = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        list.Add(new DeviceCategoryVM
+                        {
+                            Id = (int)r["Id"],
+                            CategoryName = r["CategoryName"].ToString(),
+                            ModelCount = (int)r["ModelCount"],
+                            TotalQuantity = (int)r["TotalQuantity"],
+                            LastUpdated = r["LastUpdated"] == DBNull.Value ? (DateTime?)null : (DateTime)r["LastUpdated"]
+                        });
+                    }
+                }
+            }
+            return list;
         }
     }
 }
