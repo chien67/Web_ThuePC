@@ -22,7 +22,8 @@ namespace DATN_Web.Controllers
         // GET: Orders
         public ActionResult Index()
         {
-            return View();
+            var vm = _orderBll.GetOrders3Tables();
+            return View(vm);
         }
         [HttpGet]
         public ActionResult CreateOrder(int customerId)

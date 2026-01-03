@@ -178,6 +178,8 @@
     <Compile Include="Models\ViewModels\CustomerDetailVM.cs" />
     <Compile Include="Models\ViewModels\DeviceImportVM.cs" />
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
+    <Compile Include="Models\ViewModels\OrderListRow.cs" />
+    <Compile Include="Models\ViewModels\Orders3StatusVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1999,12 +2001,12 @@
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\CreateCustomers.cshtml" />
     <Content Include="Views\Warehouse\Index.cshtml" />
-    <Content Include="Views\Customers\DeleteCustomers.cshtml" />
     <Content Include="Views\Warehouse\CreateDeviceCategory.cshtml" />
     <Content Include="Views\DeviceModels\Index.cshtml" />
     <Content Include="Views\DeviceModels\Import.cshtml" />
     <Content Include="Views\Customers\DetailCustomers.cshtml" />
     <Content Include="Views\Orders\Edit.cshtml" />
+    <Content Include="Views\Customers\EditCustomers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

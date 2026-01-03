@@ -5,6 +5,7 @@ using System.Web;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.Entities;
 using DATN_Web.Models.Enum;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.BusinessLayer
 {
@@ -129,6 +130,15 @@ namespace DATN_Web.BusinessLayer
 
 
             return _orderDal.FinishOrder(orderId);
+        }
+        public Orders3StatusVM GetOrders3Tables()
+        {
+            return new Orders3StatusVM
+            {
+                Preparing = _orderDal.GetOrdersByStatus(OrderStatus.Preparing),
+                Active = _orderDal.GetOrdersByStatus(OrderStatus.Active),
+                Finished = _orderDal.GetOrdersByStatus(OrderStatus.Finished),
+            };
         }
     }
 }

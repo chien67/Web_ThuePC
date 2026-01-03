@@ -1,4 +1,4 @@
-﻿
+﻿@model DATN_Web.Models.ViewModels.Orders3StatusVM
 @{ ViewBag.Title = "Danh sách đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -16,15 +16,52 @@
                             <table id="example2" class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th>STT</th>
-                                        <th>Tên Công Ty</th>
-                                        <th>Đại diện</th>
-                                        <th>MST</th>
-                                        <th>Điện thoại</th>
+                                        <th>Ngày giao</th>
+                                        <th>Khách hàng</th>
+                                        <th>Loại KH</th>
+                                        <th>Nội dung</th>
                                         <th>Trạng Thái</th>
+                                        <th>Ngày hết hạn</th>
+                                        <th style="width:90px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @{
+                                        int stt1 = 1;
+                                        foreach (var item in Model.Preparing)
+                                        {
+                                            <tr>
+                                                <td>@item.DeliveryDate</td>
+                                                <td class="align-middle">
+                                                    <div class="fw-bold text-primary">@item.DisplayCustomerName</div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <span class="badge bg-info">@item.CustomerTypeText</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <div class="text-primary fw-bold">
+                                                        Yêu cầu: @item.DeviceRequirement
+                                                    </div>
+                                                    <div class="text-primary fw-bold">
+                                                        Thông tin: | @item.Quantity Máy | @item.RentDays Ngày | @String.Format("{0:N0}", item.UnitPrice) VNĐ |
+                                                    </div>
+                                                    <div>
+                                                        <a href="@Url.Action("Detail","Orders", new { id = item.OrderId })">► Chi tiết</a>
+                                                    </div>
+                                                </td>
+                                                <td><span class="badge bg-warning">Đang chuẩn bị</span></td>
+                                                <td>@item.ReturnDate</td>
+                                                <td class="text-center align-middle">
+                                                    <a class="btn btn-info btn-sm"
+                                                       href="@Url.Action("Edit","Orders", new { id = item.OrderId })">
+                                                        Xem
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            stt1++;
+                                        }
+                                    }
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -41,15 +78,52 @@
                             <table id="example2" class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th>STT</th>
-                                        <th>Tên Công Ty</th>
-                                        <th>Đại diện</th>
-                                        <th>MST</th>
-                                        <th>Điện thoại</th>
+                                        <th>Ngày giao</th>
+                                        <th>Khách hàng</th>
+                                        <th>Loại KH</th>
+                                        <th>Nội dung</th>
                                         <th>Trạng Thái</th>
+                                        <th>Ngày hết hạn</th>
+                                        <th style="width:90px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @{
+                                        int stt2 = 1;
+                                        foreach (var item in Model.Active)
+                                        {
+                                            <tr>
+                                                <td>@item.DeliveryDate</td>
+                                                <td class="align-middle">
+                                                    <div class="fw-bold text-primary">@item.DisplayCustomerName</div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <span class="badge bg-info">@item.CustomerTypeText</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <div class="text-primary fw-bold">
+                                                        Yêu cầu: @item.DeviceRequirement
+                                                    </div>
+                                                    <div class="text-primary fw-bold">
+                                                        Thông tin: | @item.Quantity Máy | @item.RentDays Ngày | @String.Format("{0:N0}", item.UnitPrice) VNĐ |
+                                                    </div>
+                                                    <div>
+                                                        <a href="@Url.Action("Detail","Orders", new { id = item.OrderId })">► Chi tiết</a>
+                                                    </div>
+                                                </td>
+                                                <td><span class="badge bg-primary">Đang hoạt động</span></td>
+                                                <td>@item.ReturnDate</td>
+                                                <td class="text-center align-middle">
+                                                    <a class="btn btn-info btn-sm"
+                                                       href="@Url.Action("Edit","Orders", new { id = item.OrderId })">
+                                                        Xem
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            stt2++;
+                                        }
+                                    }
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -66,21 +140,58 @@
                             <table id="example2" class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th>STT</th>
-                                        <th>Tên Công Ty</th>
-                                        <th>Đại diện</th>
-                                        <th>MST</th>
-                                        <th>Điện thoại</th>
+                                        <th>Ngày giao</th>
+                                        <th>Khách hàng</th>
+                                        <th>Loại KH</th>
+                                        <th>Nội dung</th>
                                         <th>Trạng Thái</th>
+                                        <th>Ngày hết hạn</th>
+                                        <th style="width:90px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @{
+                                        int stt3 = 1;
+                                        foreach (var item in Model.Finished)
+                                        {
+                                            <tr>
+                                                <td>@item.DeliveryDate</td>
+                                                <td class="align-middle">
+                                                    <div class="fw-bold text-primary">@item.DisplayCustomerName</div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <span class="badge bg-info">@item.CustomerTypeText</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <div class="text-primary fw-bold">
+                                                        Yêu cầu: @item.DeviceRequirement
+                                                    </div>
+                                                    <div class="text-primary fw-bold">
+                                                        Thông tin: | @item.Quantity Máy | @item.RentDays Ngày | @String.Format("{0:N0}", item.UnitPrice) VNĐ |
+                                                    </div>
+                                                    <div>
+                                                        <a href="@Url.Action("Detail","Orders", new { id = item.OrderId })">► Chi tiết</a>
+                                                    </div>
+                                                </td>
+                                                <td><span class="badge bg-primary">Hoàn thành</span></td>
+                                                <td>@item.ReturnDate</td>
+                                                <td class="text-center align-middle">
+                                                    <a class="btn btn-info btn-sm"
+                                                       href="@Url.Action("Edit","Orders", new { id = item.OrderId })">
+                                                        Xem
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            stt3++;
+                                        }
+                                    }
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </section>

@@ -1,0 +1,90 @@
+﻿@model DATN_Web.Models.Customer
+@{
+    ViewBag.Title = "Cập nhập thông tin khách hàng";
+}
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Vui lòng nhập đầy đủ thông tin</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form method="post" action="@Url.Action("EditCustomers", "Customers")" role="form" id="quickForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="CustomerId" value="@Model.CustomerId" />
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Loại khách hàng</label>
+                                <select name="CustomerType" class="form-control">
+                                    <option value="1" @(Model.CustomerType == 1 ? "selected" : "")>Cá nhân</option>
+                                    <option value="2" @(Model.CustomerType == 2 ? "selected" : "")>Doanh nghiệp</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tên khách hàng</label>
+                                <input type="text" name="CustomerName" class="form-control"
+                                       value="@Model.CustomerName"
+                                       placeholder="Vui lòng nhập tên hoặc doanh nghiệp">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Người đại diện</label>
+                                <input type="text" name="RepresentativeName" class="form-control"
+                                       value="@Model.RepresentativeName"
+                                       placeholder="Người đại diện">
+                            </div>
+
+                            <div class="form-group">
+                                <label>CCCD</label>
+                                <input type="text" name="TaxCode" class="form-control"
+                                       value="@Model.TaxCode"
+                                       placeholder="Số căn cước công dân">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email address</label>
+                                <input type="email" name="Email" class="form-control"
+                                       value="@Model.Email"
+                                       placeholder="Enter email">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="text" name="Phone" class="form-control"
+                                       value="@Model.Phone"
+                                       placeholder="Số điện thoại">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Địa chỉ khách hàng</label>
+                                <input type="text" name="Address" class="form-control"
+                                       value="@Model.Address"
+                                       placeholder="Enter ...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Ghi chú</label>
+                                <textarea name="CustomerNote" class="form-control" rows="3">@Model.CustomerNote</textarea>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                            <a class="btn btn-secondary" href="@Url.Action("Index","Customers")">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
+<!-- Control Sidebar -->
+<aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+</aside>
+<!-- /.control-sidebar -->

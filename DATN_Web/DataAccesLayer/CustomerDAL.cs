@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Security.Policy;
 using System.Web;
 using System.Web.Helpers;
@@ -107,6 +109,50 @@ namespace DATN_Web.DataAccesLayer
                         CustomerNote = rd["CustomerNote"].ToString()
                     };
                 }
+            }
+        }
+        public int UpdateCustomer(Customer c)
+        {
+            const string sql = @"UPDATE dbo.Customers
+                                 SET CustomerType = @CustomerType,
+                                     CustomerName = @CustomerName,
+                                     RepresentativeName = @RepresentativeName,
+                                     TaxCode = @TaxCode,
+                                     Address = @Address,
+                                     Phone = @Phone,
+                                     Email = @Email,
+                                     CustomerNote = @CustomerNote
+                                 WHERE CustomerId = @CustomerId;";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@CustomerId", SqlDbType.Int).Value = c.CustomerId;
+                cmd.Parameters.Add("@CustomerType", SqlDbType.TinyInt).Value = c.CustomerType;
+
+                cmd.Parameters.Add("@CustomerName", SqlDbType.NVarChar, 500)
+                   .Value = (object)c.CustomerName ?? DBNull.Value;
+
+                cmd.Parameters.Add("@RepresentativeName", SqlDbType.NVarChar, 150)
+                   .Value = (object)c.RepresentativeName ?? DBNull.Value;
+
+                cmd.Parameters.Add("@TaxCode", SqlDbType.VarChar, 20)
+                   .Value = (object)c.TaxCode ?? DBNull.Value;
+
+                cmd.Parameters.Add("@Address", SqlDbType.NVarChar, 500)
+                   .Value = (object)c.Address ?? DBNull.Value;
+
+                cmd.Parameters.Add("@Phone", SqlDbType.VarChar, 20)
+                   .Value = (object)c.Phone ?? DBNull.Value;
+
+                cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100)
+                   .Value = (object)c.Email ?? DBNull.Value;
+
+                cmd.Parameters.Add("@CustomerNote", SqlDbType.NVarChar, 1000)
+                   .Value = (object)c.CustomerNote ?? DBNull.Value;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery();
             }
         }
     }

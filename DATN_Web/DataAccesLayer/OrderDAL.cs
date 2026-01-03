@@ -6,6 +6,8 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using DATN_Web.Models.Entities;
+using DATN_Web.Models.Enum;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -192,6 +194,45 @@ namespace DATN_Web.DataAccesLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
+        }
+        public List<OrderListRow> GetOrdersByStatus(OrderStatus status)
+        {
+            var list = new List<OrderListRow>();
+            const string sql = @"
+        SELECT *
+        FROM vw_OrderList
+        WHERE Status = @Status
+        ORDER BY CreatedAt DESC";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = (byte)status;
+                conn.Open();
+
+                using (var rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new OrderListRow
+                        {
+                            OrderId = Convert.ToInt32(rd["OrderId"]),
+                            DeliveryDate = rd["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["DeliveryDate"]),
+                            ReturnDate = rd["ReturnDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["ReturnDate"]),
+                            DeviceRequirement = rd["DeviceRequirement"]?.ToString(),
+                            Quantity = rd["Quantity"] == DBNull.Value ? 0 : Convert.ToInt32(rd["Quantity"]),
+                            RentDays = rd["RentDays"] == DBNull.Value ? 0 : Convert.ToInt32(rd["RentDays"]),
+                            UnitPrice = rd["UnitPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(rd["UnitPrice"]),
+                            Status = Convert.ToByte(rd["Status"]),
+
+                            CustomerType = Convert.ToByte(rd["CustomerType"]),
+                            CustomerName = rd["CustomerName"]?.ToString(),
+                            RepresentativeName = rd["RepresentativeName"]?.ToString(),
+                        });
+                    }
+                }
+            }
+            return list;
         }
     }
 }

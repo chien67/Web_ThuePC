@@ -36,5 +36,10 @@ namespace DATN_Web.BusinessLayer
             if (id <= 0) return null;
             return (_customerDAL.GetById(id));
         }
+        public int Update(Customer c)
+        {
+            // Có thể thêm validate nghiệp vụ tại đây nếu muốn
+            return _customerDAL.UpdateCustomer(c);
+        }
     }
 }

@@ -64,6 +64,40 @@ namespace DATN_Web.Controllers
         {
             return View();
         }
+        // GET: Customers/Edit/5
+        public ActionResult EditCustomers(int id)
+        {
+            var customer = _customerBll.GetById(id);
+            if (customer == null) return HttpNotFound();
 
+            return View(customer); // đổ dữ liệu lên form
+        }
+
+        // POST: Customers/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditCustomers(Customer model)
+        {
+            // Cá nhân (1) → cần tên người (RepresentativeName)
+            if (model.CustomerType == 1 && string.IsNullOrWhiteSpace(model.RepresentativeName))
+            {
+                ModelState.AddModelError("RepresentativeName", "Cá nhân cần họ tên.");
+            }
+
+            // Doanh nghiệp (2) → cần tên công ty (CustomerName)
+            if (model.CustomerType == 2 && string.IsNullOrWhiteSpace(model.CustomerName))
+            {
+                ModelState.AddModelError("CustomerName", "Doanh nghiệp cần tên công ty.");
+            }
+            if (!ModelState.IsValid)
+                return View(model);
+            // Làm sạch dữ liệu
+            if (model.CustomerType == 1)
+                model.CustomerName = null;
+            else
+                model.RepresentativeName = null;
+            _customerBll.Update(model);
+            return RedirectToAction("Index"); // hoặc quay về list khách hàng
+        }
     }
 }
