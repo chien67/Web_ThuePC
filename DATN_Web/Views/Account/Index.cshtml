@@ -1,5 +1,6 @@
 ﻿
-@{ ViewBag.Title = "Danh sách khách hàng";
+@model IEnumerable<DATN_Web.Models.Entities.User>
+@{ ViewBag.Title = "Danh sách người dùng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <!-- Main content -->
@@ -19,42 +20,48 @@
                                     <thead>
                                         <tr>
                                             <th>STT</th>
-                                            <th>Tên Công Ty</th>
-                                            <th>Đại diện</th>
-                                            <th>MST</th>
-                                            <th>Điện thoại</th>
+                                            <th>Tên đăng nhập</th>
+                                            <th>Tên người dùng</th>
+                                            <th>Email</th>
+                                            <th>Quyền</th>
                                             <th>Trạng Thái</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var kh in Model)
+                                        @{
+                                            int stt = 1;
+                                        }
+                                        @foreach (var u in Model)
                                         {
                                             <tr>
-                                                <td>@kh.CustomerId</td>
-                                                <td>@kh.CustomerName</td>
-                                                <td>@kh.RepresentativeName</td>
-                                                <td>@kh.TaxCode</td>
-                                                <td>@kh.Phone</td>
-                                                <td class="project-actions text-right">
-                                                    <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers", new { id = kh.CustomerId })">
+                                                <td>@stt</td>
+                                                <td>@u.Username</td>
+                                                <td>@u.FullName</td>
+                                                <td>@u.Email</td>
+                                                <td>@(u.Role == 2 ? "Admin" : "User")</td>
+                                                <td>@(u.IsActive ? "Hoạt động" : "Khóa")</td>
+                                                <td>
+                                                    <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers", new { id = u.UserId })">
                                                         <i class="fas fa-folder">
                                                         </i>
                                                         Xem
                                                     </a>
-                                                    <a class="btn btn-info btn-sm" href="@Url.Action("EditCustomers","Customers",new { id = kh.CustomerId })">
+                                                    <a class="btn btn-info btn-sm" href="@Url.Action("EditCustomers","Customers", new { id = u.UserId })">
                                                         <i class="fas fa-pencil-alt">
                                                         </i>
                                                         Sửa
                                                     </a>
-                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers",new { id = kh.CustomerId })">
+                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
                                                         <i class="fas fa-trash">
                                                         </i>
                                                         Xoá
                                                     </a>
                                                 </td>
                                             </tr>
+                                            stt++;
                                         }
-                                    </tbody>
+                                     </tbody>
                                 </table>
                             </div>
                             <!-- /.card-body -->
@@ -66,9 +73,6 @@
         </div>
     </div>
 </section>
-<!-- /.content -->
-<!-- /.content-wrapper -->
-<!-- Control Sidebar -->
 <aside class="control-sidebar control-sidebar-dark">
     <!-- Control sidebar content goes here -->
 </aside>

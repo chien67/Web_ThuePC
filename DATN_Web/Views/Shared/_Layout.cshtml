@@ -23,7 +23,6 @@
     <link href="@Url.Content("~/Plugins/datatables-bs4/css/dataTables.bootstrap4.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Plugins/datatables-responsive/css/responsive.bootstrap4.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Plugins/daterangepicker/daterangepicker.css")" rel="stylesheet" />
-
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -90,6 +89,33 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        @* ===== QUẢN LÝ NGƯỜI DÙNG - CHỈ ADMIN ===== *@
+                        @if (Session["Role"] != null && (byte)Session["Role"] == 2)
+                        {
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-users-cog"></i>
+                                    <p>
+                                        Quản lý người dùng
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index","Account")" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Danh sách tài khoản</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Register","Account")" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Tạo tài khoản</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fa fa-users"></i>
