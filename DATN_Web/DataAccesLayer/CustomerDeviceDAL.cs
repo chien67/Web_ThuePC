@@ -325,7 +325,7 @@ namespace DATN_Web.DataAccesLayer
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 4) Cập nhật kho: cộng tồn, trừ đang dùng
+                        // 3) Cập nhật kho: cộng tồn, trừ đang dùng
                         const string sqlStock = @"
                     UPDATE DeviceModel
                     SET InStockQuantity = InStockQuantity + @Qty,
