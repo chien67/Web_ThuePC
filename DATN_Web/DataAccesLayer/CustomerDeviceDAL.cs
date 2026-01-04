@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using DATN_Web.Models.DTO;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -152,6 +153,7 @@ namespace DATN_Web.DataAccesLayer
                 }
             }
         }
+        // Trả về Ds ra ngoài bảng detailcustomer
         public List<CustomerDeviceRowDto> GetDevicesByCustomerId(int customerId, bool onlyInUse = true)
         {
             // onlyInUse=true => chỉ lấy Status=1 (đang dùng)
@@ -177,6 +179,201 @@ namespace DATN_Web.DataAccesLayer
             {
                 cmd.Parameters.AddWithValue("@CustomerId", customerId);
                 cmd.Parameters.AddWithValue("@OnlyInUse", onlyInUse ? 1 : 0);
+
+                conn.Open();
+                using (var rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new CustomerDeviceRowDto
+                        {
+                            Id = Convert.ToInt32(rd["Id"]),
+                            DeliveryDate = rd["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["DeliveryDate"]),
+                            Quantity = Convert.ToInt32(rd["Quantity"]),
+                            Status = Convert.ToByte(rd["Status"]),
+                            CategoryName = rd["CategoryName"].ToString(),
+                            ModelName = rd["ModelName"].ToString(),
+                            Configuration = rd["Configuration"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+        // trả về 1 dòng đang dùng
+        public ReturnDeviceVM GetReturnFormData(int customerDeviceId)
+        {
+            const string sql = @"
+        SELECT 
+            cd.Id AS CustomerDeviceId,
+            cd.CustomerId,
+            cd.Quantity AS InUseQuantity,
+            dc.CategoryName,
+            dm.ModelName,
+            dm.Configuration
+        FROM CustomerDevices cd
+        INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
+        INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
+        WHERE cd.Id = @Id AND cd.Status = 1";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", customerDeviceId);
+
+                conn.Open();
+                using (var rd = cmd.ExecuteReader())
+                {
+                    if (!rd.Read()) return null;
+
+                    return new ReturnDeviceVM
+                    {
+                        CustomerDeviceId = Convert.ToInt32(rd["CustomerDeviceId"]),
+                        CustomerId = Convert.ToInt32(rd["CustomerId"]),
+                        InUseQuantity = Convert.ToInt32(rd["InUseQuantity"]),
+                        CategoryName = rd["CategoryName"].ToString(),
+                        ModelText = rd["ModelName"].ToString() + " - Cấu hình: " + rd["Configuration"].ToString()
+                    };
+                }
+            }
+        }
+        // Thu hồi về 1 phần
+        public void ReturnDevicePartial(int customerDeviceId, int returnQty)
+        {
+            if (customerDeviceId <= 0) throw new Exception("Id thu hồi không hợp lệ.");
+            if (returnQty <= 0) throw new Exception("Số lượng thu hồi phải > 0.");
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                using (var tran = conn.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    try
+                    {
+                        // 1) Khóa dòng đang dùng để lấy ModelId + Quantity + CustomerId
+                        const string sqlGet = @"
+                    SELECT CustomerId, ModelId, Quantity, Status
+                    FROM CustomerDevices WITH (UPDLOCK, ROWLOCK)
+                    WHERE Id = @Id";
+
+                        int customerId, modelId, inUseQty;
+                        byte status;
+
+                        using (var cmd = new SqlCommand(sqlGet, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", customerDeviceId);
+                            using (var rd = cmd.ExecuteReader())
+                            {
+                                if (!rd.Read())
+                                    throw new Exception("Không tìm thấy dòng thiết bị.");
+
+                                customerId = Convert.ToInt32(rd["CustomerId"]);
+                                modelId = Convert.ToInt32(rd["ModelId"]);
+                                inUseQty = Convert.ToInt32(rd["Quantity"]);
+                                status = Convert.ToByte(rd["Status"]);
+                            }
+                        }
+
+                        if (status != 1) throw new Exception("Thiết bị này không ở trạng thái đang dùng.");
+                        if (returnQty > inUseQty) throw new Exception("Số lượng thu hồi vượt số đang sử dụng.");
+
+                        // 2) Update dòng đang dùng: giảm Quantity hoặc set Status=2 nếu về 0
+                        int remain = inUseQty - returnQty;
+
+                        if (remain > 0)
+                        {
+                            const string sqlUpdateInUse = @"
+                        UPDATE CustomerDevices
+                        SET Quantity = @Remain
+                        WHERE Id = @Id AND Status = 1";
+
+                            using (var cmd = new SqlCommand(sqlUpdateInUse, conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Remain", remain);
+                                cmd.Parameters.AddWithValue("@Id", customerDeviceId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            // thu hồi hết: set Status=2 + ReturnDate
+                            const string sqlClose = @"
+                        UPDATE CustomerDevices
+                        SET Status = 2, ReturnDate = @ReturnDate
+                        WHERE Id = @Id AND Status = 1";
+
+                            using (var cmd = new SqlCommand(sqlClose, conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@ReturnDate", DateTime.Today);
+                                cmd.Parameters.AddWithValue("@Id", customerDeviceId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        // 3) Ghi lịch sử thu hồi (Status=2) với số lượng thu hồi tránh mất lịch sử
+                        const string sqlInsertReturn = @"
+                    INSERT INTO CustomerDevices(CustomerId, ModelId, DeliveryDate, Quantity, Status, ReturnDate)
+                    VALUES (@CustomerId, @ModelId, NULL, @Qty, 2, @ReturnDate)";
+
+                        using (var cmd = new SqlCommand(sqlInsertReturn, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@CustomerId", customerId);
+                            cmd.Parameters.AddWithValue("@ModelId", modelId);
+                            cmd.Parameters.AddWithValue("@Qty", returnQty);
+                            cmd.Parameters.AddWithValue("@ReturnDate", DateTime.Today);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // 4) Cập nhật kho: cộng tồn, trừ đang dùng
+                        const string sqlStock = @"
+                    UPDATE DeviceModel
+                    SET InStockQuantity = InStockQuantity + @Qty,
+                        InUseQuantity = CASE WHEN InUseQuantity >= @Qty THEN InUseQuantity - @Qty ELSE 0 END
+                    WHERE Id = @ModelId";
+
+                        using (var cmd = new SqlCommand(sqlStock, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Qty", returnQty);
+                            cmd.Parameters.AddWithValue("@ModelId", modelId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        tran.Commit();
+                    }
+                    catch
+                    {
+                        tran.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        // Lịch sử thu hồi
+        public List<CustomerDeviceRowDto> GetReturnHistoryByCustomerId(int customerId)
+        {
+            const string sql = @"
+        SELECT 
+            cd.Id,
+            cd.ReturnDate AS DeliveryDate,
+            cd.Quantity,
+            cd.Status,
+            dc.CategoryName,
+            dm.ModelName,
+            dm.Configuration
+        FROM CustomerDevices cd
+        INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
+        INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
+        WHERE cd.CustomerId = @CustomerId
+          AND cd.Status = 2
+        ORDER BY cd.ReturnDate DESC, cd.Id DESC;";
+
+            var list = new List<CustomerDeviceRowDto>();
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@CustomerId", customerId);
 
                 conn.Open();
                 using (var rd = cmd.ExecuteReader())

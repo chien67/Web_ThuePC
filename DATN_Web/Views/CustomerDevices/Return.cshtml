@@ -1,0 +1,78 @@
+﻿@model DATN_Web.Models.ViewModels.ReturnDeviceVM
+@{
+    ViewBag.Title = "Thu hồi thiết bị";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-outline card-secondary">
+            <div class="card-header">
+                <h3 class="card-title font-weight-bold">Thu hồi thiết bị khách hàng</h3>
+            </div>
+
+            @using (Html.BeginForm("Return", "CustomerDevices", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.CustomerId)
+                @Html.HiddenFor(m => m.CustomerDeviceId)
+
+                <div class="card-body">
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th style="width:160px;">Loại danh mục</th>
+                                    <th>Model/Cấu hình</th>
+                                    <th style="width:160px;">Công việc</th>
+                                    <th style="width:170px;" class="text-center">Số lượng đang sử dụng</th>
+                                    <th style="width:150px;" class="text-center">Số lượng thu hồi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="align-middle">@Model.CategoryName</td>
+                                    <td class="align-middle">@Model.ModelText</td>
+                                    <td class="align-middle">
+                                        <select class="form-control" disabled>
+                                            <option>Thu hồi</option>
+                                        </select>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <input class="form-control text-center" value="@Model.InUseQuantity" disabled />
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        @Html.TextBoxFor(m => m.ReturnQuantity,
+                                            new { @class = "form-control text-center", type = "number", min = "1", max = Model.InUseQuantity, id = "returnQty" })
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary px-4">Lưu</button>
+                    <a class="btn btn-outline-secondary px-4"
+                       href="@Url.Action("DetailCustomers","Customers", new { id = Model.CustomerId })">Hủy</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+    <script>
+$(function(){
+    const maxQty = @Model.InUseQuantity;
+
+    $('#returnQty').on('input', function(){
+        let v = parseInt($(this).val() || '0', 10);
+        if (v > maxQty) $(this).val(maxQty);
+        if (v < 1) $(this).val(1);
+    });
+});
+    </script>
+}

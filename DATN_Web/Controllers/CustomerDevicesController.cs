@@ -71,5 +71,36 @@ namespace DATN_Web.Controllers
                 return View(vm);
             }
         }
+        public ActionResult Return(int id)
+        {
+            var vm = _bll.GetReturnFormData(id);
+            if (vm == null) return HttpNotFound();
+
+            return View(vm); // Views/CustomerDevices/Return.cshtml
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Return(ReturnDeviceVM vm)
+        {
+            try
+            {
+                _bll.ReturnDevicePartial(vm.CustomerDeviceId, vm.ReturnQuantity);
+                return RedirectToAction("DetailCustomers", "Customers", new { id = vm.CustomerId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                // reload data display nếu cần
+                var reload = _bll.GetReturnFormData(vm.CustomerDeviceId);
+                if (reload != null)
+                {
+                    vm.CategoryName = reload.CategoryName;
+                    vm.ModelText = reload.ModelText;
+                    vm.InUseQuantity = reload.InUseQuantity;
+                }
+                return View(vm);
+            }
+        }
     }
 }

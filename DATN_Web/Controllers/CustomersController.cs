@@ -58,6 +58,8 @@ namespace DATN_Web.Controllers
             };
             var deviceBll = new CustomerDeviceBLL();
             vm.CustomerDevices = deviceBll.GetDevicesByCustomerId(id, onlyInUse: true);
+            vm.ReturnHistories = deviceBll.GetReturnHistoryByCustomerId(id);
+            System.Diagnostics.Debug.WriteLine("POST Return called: " + DateTime.Now);
             return View(vm);
         }
         [HttpPost]

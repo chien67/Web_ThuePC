@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.DTO;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.BusinessLayer
 {
@@ -38,6 +39,19 @@ namespace DATN_Web.BusinessLayer
         {
             if (customerId <= 0) return new List<CustomerDeviceRowDto>();
             return _dal.GetDevicesByCustomerId(customerId, onlyInUse);
+        }
+        public ReturnDeviceVM GetReturnFormData(int customerDeviceId)
+        {
+            return _dal.GetReturnFormData(customerDeviceId);
+        }
+        public void ReturnDevicePartial(int customerDeviceId, int returnQty)
+        {
+            _dal.ReturnDevicePartial(customerDeviceId, returnQty);
+        }
+        public List<CustomerDeviceRowDto> GetReturnHistoryByCustomerId(int customerId)
+        {
+            if (customerId <= 0) return new List<CustomerDeviceRowDto>();
+            return _dal.GetReturnHistoryByCustomerId(customerId);
         }
     }
 }
