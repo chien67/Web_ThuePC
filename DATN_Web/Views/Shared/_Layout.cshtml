@@ -23,6 +23,7 @@
     <link href="@Url.Content("~/Plugins/datatables-bs4/css/dataTables.bootstrap4.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Plugins/datatables-responsive/css/responsive.bootstrap4.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Plugins/daterangepicker/daterangepicker.css")" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -54,11 +55,11 @@
                 </div>
             </form>
 
-            <!-- Right navbar links -->
+            <!-- Đăng xuất -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
+                    <a class="nav-link" href="@Url.Action("Logout", "Account")">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
                     </a>
                 </li>
             </ul>
@@ -78,11 +79,10 @@
             <div class="sidebar">
                 <!-- Sidebar user (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="~/images/img_home/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block">Chào bạn,
+                            @(Session["FullName"]?.ToString() ?? User.Identity.Name)
+                        </a>
                     </div>
                 </div>
 

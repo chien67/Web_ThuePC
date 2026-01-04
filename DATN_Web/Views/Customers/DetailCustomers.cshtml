@@ -104,7 +104,7 @@
                             }
                         };
                     }
-                    <table id="example2" class="table table-bordered table-hover mb-0">
+                    <table id="ordersTable" class="table table-bordered table-hover mb-0">
                         <thead class="text-center">
                             <tr>
                                 <th>Ngày giao</th>
@@ -117,13 +117,7 @@
                         </thead>
 
                         <tbody>
-                            @if (Model.Orders == null || !Model.Orders.Any())
-                            {
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">Chưa có đơn hàng</td>
-                                </tr>
-                            }
-                            else
+                            @if (Model.Orders != null && Model.Orders.Any())
                             {
                                 foreach (var o in Model.Orders.Where(x => x.Status != 3))
                                 {
@@ -190,27 +184,21 @@
                     <h3 class="card-title">Thiết bị</h3>
                     <div class="project-actions text-right">
                         <div class="btn-group ">
-                            <a class="btn btn-primary" href="@Url.Action("DetailCustomers","Customers")">
-                                <i class="fas fa-folder">
-                                </i>
-                                Xem
+                            <a class="btn btn-primary"
+                               href="@Url.Action("Create", "CustomerDevices", new { customerId = Model.Customer.CustomerId })">
+                                <i class="fas fa-plus"></i> Thêm mới
                             </a>
                             <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
                                 <i class="fas fa-pencil-alt">
                                 </i>
-                                Sửa
-                            </a>
-                            <a class="btn btn-danger" href="@Url.Action("DeleteCustomers","Customers")">
-                                <i class="fas fa-trash">
-                                </i>
-                                Xoá
+                                Thu hồi
                             </a>
                         </div>
                     </div>
                     <!-- /.card-body -->
                 </div>
                 <div class="card-body">
-                    <table id="example2" class="table table-bordered table-hover">
+                    <table id="devicesTable" class="table table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th>Ngày giao</th>
@@ -222,6 +210,31 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @if (Model.CustomerDevices == null || !Model.CustomerDevices.Any())
+                            {
+                                @* để trống cho DataTables emptyTable *@
+                            }
+                            else
+                            {
+                                foreach (var d in Model.CustomerDevices)
+                                {
+                                    <tr>
+                                        <td class="text-center align-middle">@(d.DeliveryDate?.ToString("dd/MM/yyyy"))</td>
+                                        <td class="text-center align-middle">
+                                            <span class="badge badge-primary">@d.CategoryName</span>
+                                        </td>
+                                        <td class="align-middle">@d.ModelName</td>
+                                        <td class="align-middle">@d.Configuration</td>
+                                        <td class="text-center align-middle">@d.Quantity</td>
+                                        <td class="text-center align-middle">
+                                            <a class="btn btn-outline-dark btn-sm"
+                                               href="@Url.Action("Return", "CustomerDevices", new { id = d.Id })">
+                                                Thu hồi
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -239,3 +252,75 @@
         </div>
     </div>
 </section>
+@section Scripts {
+    <script>
+        // ORDERS TABLE
+        if (!$.fn.DataTable.isDataTable('#ordersTable')) {
+            $('#ordersTable').DataTable({
+                lengthChange: false,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+
+                columnDefs: [
+                    { targets: -1, orderable: false }
+                ],
+
+                language: {
+                    emptyTable: `
+                        <div class="py-4 text-center text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <div class="font-weight-bold">Chưa có đơn hàng</div>
+                            <div class="small">Nhấn <b>Thêm mới</b> để tạo đơn hàng đầu tiên</div>
+                        </div>
+                    `,
+                    zeroRecords: "Không tìm thấy dữ liệu phù hợp"
+                },
+
+                drawCallback: function () {
+                    const api = this.api();
+                    const hasData = api.rows({ filter: 'applied' }).data().length > 0;
+                    const $wrap = $(api.table().container());
+
+                    $wrap.find('.dataTables_filter').toggle(hasData);
+                    $wrap.find('.dataTables_length').toggle(hasData);
+                    $wrap.find('.dataTables_paginate').toggle(hasData);
+                    $wrap.find('.dataTables_info').toggle(hasData);
+                }
+            });
+        }
+        //deivecmodel
+        $(function () {
+
+            // DEVICES TABLE - gọn như mẫu
+            if (!$.fn.DataTable.isDataTable('#devicesTable')) {
+                $('#devicesTable').DataTable({
+                    responsive: true,
+                    autoWidth: false,
+
+                    // Ẩn toàn bộ control giống mẫu
+                    searching: false,
+                    paging: false,
+                    info: false,
+                    lengthChange: false,
+
+                    // Tắt sort cột "Chức năng" (cột cuối)
+                    columnDefs: [{ targets: -1, orderable: false }],
+
+                    language: {
+                        emptyTable: "Không có dữ liệu"
+                    }
+                });
+            }
+
+        });
+    </script>
+}
+@section Styles {
+    <style>
+        #ordersTable_wrapper .dataTables_filter {
+            margin-top: 12px;
+            margin-right: 12px;
+        }
+    </style>
+}

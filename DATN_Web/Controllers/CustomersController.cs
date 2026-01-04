@@ -56,7 +56,8 @@ namespace DATN_Web.Controllers
                 Customer = customer,
                 Orders = _orderBLL.GetOrdersOfCustomer(id)
             };
-
+            var deviceBll = new CustomerDeviceBLL();
+            vm.CustomerDevices = deviceBll.GetDevicesByCustomerId(id, onlyInUse: true);
             return View(vm);
         }
         [HttpPost]
@@ -92,13 +93,11 @@ namespace DATN_Web.Controllers
             {
                 ModelState.AddModelError("CustomerName", "Doanh nghiệp cần tên công ty.");
             }
+
             if (!ModelState.IsValid)
                 return View(model);
-            // Làm sạch dữ liệu
             if (model.CustomerType == 1)
                 model.CustomerName = null;
-            else
-                model.RepresentativeName = null;
             _customerBll.Update(model);
             return RedirectToAction("Index"); // hoặc quay về list khách hàng
         }

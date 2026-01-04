@@ -1,0 +1,144 @@
+﻿@model DATN_Web.Models.ViewModels.ImportDeviceVM
+@{
+    ViewBag.Title = "Xuất thiết bị khách hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // nếu bạn dùng layout khác thì đổi
+}
+
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card card-outline card-secondary">
+                <div class="card-header">
+                    <h3 class="card-title font-weight-bold">
+                        Xuất thiết bị khách hàng
+                    </h3>
+
+                    <div class="card-tools text-right">
+                        @* Nếu bạn có ViewBag.CustomerName / ViewBag.Address thì show, không có thì bỏ *@
+                        <div style="font-size: 13px; line-height: 1.3;">
+                            @if (ViewBag.CustomerName != null)
+                            {
+                                <div><b>Thêm thiết bị cho khách hàng:</b> @ViewBag.CustomerName</div>
+                            }
+                            @if (ViewBag.DeliveryAddress != null)
+                            {
+                                <div><b>Địa chỉ giao hàng:</b> @ViewBag.DeliveryAddress</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("Create", "CustomerDevices", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.CustomerId)
+
+                    <div class="card-body">
+
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 180px;">Loại danh mục</th>
+                                        <th>Model/Cấu hình</th>
+                                        <th style="width: 130px;" class="text-center">Tồn kho</th>
+                                        <th style="width: 140px;" class="text-center">Số lượng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="align-middle">
+                                            @Html.DropDownListFor(
+                                                m => m.CategoryId,
+                                                Model.Categories,
+                                                "-- Chọn danh mục --",
+                                                new { @class = "form-control", id = "category" }
+                                            )
+                                        </td>
+
+                                        <td class="align-middle">
+                                            <select id="model" name="ModelId" class="form-control">
+                                                <option value="">-- Chọn model/cấu hình --</option>
+                                            </select>
+                                        </td>
+
+                                        <td class="align-middle text-center">
+                                            <input id="stock" class="form-control text-center" disabled />
+                                        </td>
+
+                                        <td class="align-middle text-center">
+                                            @Html.TextBoxFor(m => m.Quantity,
+                                                new { @class = "form-control text-center", type = "number", min = "1", id = "qty" })
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary px-4">
+                            Lưu
+                        </button>
+
+                        <a class="btn btn-outline-secondary px-4"
+                           href="@Url.Action("DetailCustomers", "Customers", new { id = Model.CustomerId })">
+                            Hủy
+                        </a>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+@section Scripts {
+    <script>
+$(function () {
+
+    function resetModel() {
+        $('#model').html('<option value="">-- Chọn model/cấu hình --</option>');
+        $('#stock').val('');
+    }
+
+    $('#category').on('change', function () {
+        const categoryId = $(this).val();
+        resetModel();
+
+        if (!categoryId) return;
+
+        $.get('@Url.Action("GetModels", "CustomerDevices")', { categoryId: categoryId })
+            .done(function (data) {
+                data.forEach(function (x) {
+                    $('#model').append(
+                        `<option value="${x.Id}" data-stock="${x.Stock}">${x.Text}</option>`
+                    );
+                });
+            })
+            .fail(function () {
+                alert('Không tải được danh sách model.');
+            });
+    });
+
+    $('#model').on('change', function () {
+        const stock = $('#model option:selected').data('stock');
+        $('#stock').val(stock ?? '');
+    });
+
+    // Chặn nhập quá tồn kho (UI)
+    $('#qty').on('input', function () {
+        const stock = parseInt($('#stock').val() || '0', 10);
+        const qty = parseInt($(this).val() || '0', 10);
+
+        if (stock > 0 && qty > stock) $(this).val(stock);
+        if (qty < 0) $(this).val(1);
+    });
+
+});
+    </script>
+}

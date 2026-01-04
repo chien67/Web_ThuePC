@@ -39,7 +39,7 @@ namespace DATN_Web.Controllers
                     CustomerId = customerId,
                     DeliveryDate = DateTime.Today,
                     ReturnDate = DateTime.Today,
-                    DeliveryAddress = cus.Address // auto fill nếu muốn
+                    DeliveryAddress = cus.Address
                 }
             };
 
@@ -86,7 +86,7 @@ namespace DATN_Web.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var order = _orderBll.GetOrder(id); // BLL gọi DAL GetOrderById
+            var order = _orderBll.GetOrder(id);
             if (order == null) return HttpNotFound();
 
             var cus = _customerBll.GetCustomerDetail(order.CustomerId);
@@ -96,7 +96,7 @@ namespace DATN_Web.Controllers
                 Customer = cus,
                 Order = order
             };
-            return View("Edit", vm); // ✅ view mới, không quay create
+            return View("Edit", vm);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -114,7 +114,6 @@ namespace DATN_Web.Controllers
             {
                 TempData["Success"] = "Cập nhật đơn hàng thành công.";
 
-                // ✅ QUAY VỀ TRANG DETAIL CUSTOMER
                 return RedirectToAction(
                     "DetailCustomers",
                     "Customers",

@@ -53,7 +53,7 @@ namespace DATN_Web.Controllers
             Session["UserId"] = user.UserId;
             Session["FullName"] = user.FullName;
             Session["Role"] = user.Role;
-
+            Session["FullName"] = user.FullName;
             return RedirectToAction("Index", "Home");
         }
 

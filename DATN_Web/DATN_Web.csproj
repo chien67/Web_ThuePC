@@ -150,10 +150,12 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="BusinessLayer\CustomerBLL.cs" />
+    <Compile Include="BusinessLayer\CustomerDeviceBLL.cs" />
     <Compile Include="BusinessLayer\DeviceCategoryBLL.cs" />
     <Compile Include="BusinessLayer\DeviceModelBLL.cs" />
     <Compile Include="BusinessLayer\OrderBLL.cs" />
     <Compile Include="BusinessLayer\AuthBLL.cs" />
+    <Compile Include="Controllers\CustomerDevicesController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\DeviceModelsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -162,6 +164,7 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\WarehouseController.cs" />
     <Compile Include="DataAccesLayer\CustomerDAL.cs" />
+    <Compile Include="DataAccesLayer\CustomerDeviceDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceImportDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceModelDAL.cs" />
@@ -172,7 +175,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\DTO\CustomerDeviceRowDto.cs" />
+    <Compile Include="Models\DTO\DeviceModelOptionDto.cs" />
     <Compile Include="Models\Entities\Customer.cs" />
+    <Compile Include="Models\Entities\CustomerDevice.cs" />
     <Compile Include="Models\Entities\DeviceCategory.cs" />
     <Compile Include="Models\Entities\DeviceModel.cs" />
     <Compile Include="Models\Entities\DeviceImport.cs" />
@@ -185,6 +191,7 @@
     <Compile Include="Models\ViewModels\DeviceCategoryVM.cs" />
     <Compile Include="Models\ViewModels\DeviceImportVM.cs" />
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
+    <Compile Include="Models\ViewModels\ImportDeviceVM.cs" />
     <Compile Include="Models\ViewModels\LoginVM.cs" />
     <Compile Include="Models\ViewModels\OrderListRow.cs" />
     <Compile Include="Models\ViewModels\Orders3StatusVM.cs" />
@@ -2019,6 +2026,7 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\CustomerDevices\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
