@@ -39,7 +39,7 @@ namespace DATN_Web
             builder.RegisterType<OrderDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<OrderDetailDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<OrderBLL>().AsSelf().InstancePerRequest();
-
+            builder.RegisterType<CustomerDeviceBLL>().AsSelf();
             // ...
 
             // 2. Đăng ký các BLL (BLL sẽ tự động nhận DAL qua Constructor)

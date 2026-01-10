@@ -9,6 +9,7 @@ namespace DATN_Web.Models.Entities
     {
         public int OrderId { get; set; }
         public int CustomerId { get; set; }
+        public int? CategoryId { get; set; }
         public DateTime CreatedAt { get; set; }
         public string DeviceRequirement { get; set; }
         public DateTime? DeliveryDate { get; set; }

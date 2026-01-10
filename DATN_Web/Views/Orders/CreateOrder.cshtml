@@ -115,6 +115,7 @@
                             <table class="table table-bordered table-hover" id="detailTable">
                                 <thead class="text-center">
                                     <tr>
+                                        <th>Loại thiết bị</th>
                                         <th>Yêu cầu thiết bị</th>
                                         <th style="width:120px;">Số lượng</th>
                                         <th style="width:120px;">Số ngày</th>
@@ -124,6 +125,13 @@
                                 </thead>
                                 <tbody>
                                     <tr>
+                                        <td class="align-middle">
+                                            @Html.DropDownListFor(m => m.Order.CategoryId,
+                                                    (IEnumerable<SelectListItem>)ViewBag.Categories,
+                                                    "-- Chọn danh mục --",
+                                                    new { @class = "form-control", id = "CategoryId" })
+
+                                        </td>
                                         <td>
                                             <textarea name="Order.DeviceRequirement"
                                                       class="form-control" rows="2"></textarea>

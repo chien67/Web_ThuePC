@@ -13,7 +13,7 @@ namespace DATN_Web.Models.ViewModels
         public int? ModelId { get; set; }
         public int InStockQuantity { get; set; }
         public int Quantity { get; set; }
-        // ✅ Thêm dòng này để controller đổ dropdown danh mục
+        //controller đổ dropdown danh mục
         public List<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
     }
 }

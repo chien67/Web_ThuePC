@@ -19,14 +19,15 @@ namespace DATN_Web.DataAccesLayer
         }
         public int InsertOrder(Order o)
         {
-            string sql = @"INSERT INTO Orders(CustomerId, CreatedAt, Quantity, DeviceRequirement, DeliveryDate, ReturnDate, RentDays, DeliveryAddress, UnitPrice, Status)
-                           VALUES(@CustomerId, GETDATE(), @Quantity, @DeviceRequirement, @DeliveryDate, @ReturnDate, @RentDays, @DeliveryAddress, @UnitPrice, @Status);
+            string sql = @"INSERT INTO Orders(CustomerId, CategoryId, CreatedAt, Quantity, DeviceRequirement, DeliveryDate, ReturnDate, RentDays, DeliveryAddress, UnitPrice, Status)
+                           VALUES(@CustomerId, @CategoryId, GETDATE(), @Quantity, @DeviceRequirement, @DeliveryDate, @ReturnDate, @RentDays, @DeliveryAddress, @UnitPrice, @Status);
                            SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             using (SqlCommand cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.Add("@CustomerId", SqlDbType.Int).Value = o.CustomerId;
+                cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value = (object)o.CategoryId ?? DBNull.Value;
                 cmd.Parameters.Add("@DeliveryDate", SqlDbType.Date).Value = (object)o.DeliveryDate ?? DBNull.Value;
                 cmd.Parameters.Add("@DeviceRequirement", SqlDbType.NVarChar).Value = (object)o.DeviceRequirement ?? DBNull.Value;
                 cmd.Parameters.Add("@ReturnDate", SqlDbType.Date).Value = (object)o.ReturnDate ?? DBNull.Value;
@@ -48,7 +49,7 @@ namespace DATN_Web.DataAccesLayer
         public List<Order> GetOrdersByCustomerId(int customerId)
         {
             var list = new List<Order>();
-            string sql = @"SELECT OrderId, CustomerId, CreatedAt, Quantity, DeviceRequirement, DeliveryDate, ReturnDate, RentDays, DeliveryAddress, UnitPrice, Status
+            string sql = @"SELECT OrderId, CustomerId, CategoryId, CreatedAt, Quantity, DeviceRequirement, DeliveryDate, ReturnDate, RentDays, DeliveryAddress, UnitPrice, Status
                            FROM Orders
                            WHERE CustomerId = @CustomerId
                            ORDER BY CreatedAt DESC;";
@@ -67,6 +68,7 @@ namespace DATN_Web.DataAccesLayer
                         {
                             OrderId = (int)r["OrderId"],
                             CustomerId = (int)r["CustomerId"],
+                            CategoryId = r["CategoryId"] == DBNull.Value ? (int?) null : Convert.ToInt32(r["CategoryId"]),
                             CreatedAt = (DateTime)r["CreatedAt"],
                             DeliveryDate = r["DeliveryDate"] as DateTime?,
                             ReturnDate = r["ReturnDate"] as DateTime?,
@@ -83,12 +85,17 @@ namespace DATN_Web.DataAccesLayer
 
             return list;
         }
-        public Order GetOrderById(int id)
+        public OrderDetailVM GetOrderById(int id)
         {
-            string sql = @"SELECT OrderId, CustomerId, CreatedAt, DeviceRequirement, DeliveryDate, ReturnDate,
-                          RentDays, Quantity, DeliveryAddress, UnitPrice,DepositAmount, Status
-                   FROM Orders
-                   WHERE OrderId = @Id";
+            const string sql = @"SELECT 
+                                      o.OrderId, o.CustomerId, o.CategoryId, o.CreatedAt,
+                                      o.DeviceRequirement, o.DeliveryDate, o.ReturnDate,
+                                      o.RentDays, o.Quantity, o.DeliveryAddress, o.UnitPrice, o.DepositAmount, o.Status,
+                                      c.CategoryName
+                                 FROM dbo.Orders o
+                                 LEFT JOIN dbo.DeviceCategory c ON c.Id = o.CategoryId
+                                 WHERE o.OrderId = @Id;";
+
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -99,20 +106,28 @@ namespace DATN_Web.DataAccesLayer
                 {
                     if (!r.Read()) return null;
 
-                    return new Order
+                    var order = new Order
                     {
-                        OrderId = (int)r["OrderId"],
-                        CustomerId = (int)r["CustomerId"],
-                        CreatedAt = (DateTime)r["CreatedAt"],
-                        DeviceRequirement = r["DeviceRequirement"] as string,
-                        DeliveryDate = r["DeliveryDate"] as DateTime?,
-                        ReturnDate = r["ReturnDate"] as DateTime?,
+                        OrderId = Convert.ToInt32(r["OrderId"]),
+                        CustomerId = Convert.ToInt32(r["CustomerId"]),
+                        CategoryId = r["CategoryId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["CategoryId"]),
+                        CreatedAt = Convert.ToDateTime(r["CreatedAt"]),
+
+                        DeviceRequirement = r["DeviceRequirement"] == DBNull.Value ? null : r["DeviceRequirement"].ToString(),
+                        DeliveryDate = r["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["DeliveryDate"]),
+                        ReturnDate = r["ReturnDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["ReturnDate"]),
                         RentDays = r["RentDays"] == DBNull.Value ? 0 : Convert.ToInt32(r["RentDays"]),
                         Quantity = r["Quantity"] == DBNull.Value ? 0 : Convert.ToInt32(r["Quantity"]),
-                        DeliveryAddress = r["DeliveryAddress"] as string,
-                        UnitPrice = r["UnitPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(r["UnitPrice"]),
-                        DepositAmount = r["DepositAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(r["DepositAmount"]),
-                        Status = Convert.ToByte(r["Status"])
+                        DeliveryAddress = r["DeliveryAddress"] == DBNull.Value ? null : r["DeliveryAddress"].ToString(),
+                        UnitPrice = r["UnitPrice"] == DBNull.Value ? 0m : Convert.ToDecimal(r["UnitPrice"]),
+                        DepositAmount = r["DepositAmount"] == DBNull.Value ? 0m : Convert.ToDecimal(r["DepositAmount"]),
+                        Status = r["Status"] == DBNull.Value ? (byte)0 : Convert.ToByte(r["Status"])
+                    };
+
+                    return new OrderDetailVM
+                    {
+                        Order = order,
+                        CategoryName = r["CategoryName"] == DBNull.Value ? null : r["CategoryName"].ToString()
                     };
                 }
             }
@@ -123,6 +138,7 @@ namespace DATN_Web.DataAccesLayer
                            UPDATE dbo.Orders
                            SET
                                CustomerId        = @CustomerId,
+                               CategoryId        = @CategoryId,
                                DeviceRequirement = @DeviceRequirement,
                                DeliveryDate      = @DeliveryDate,
                                ReturnDate        = @ReturnDate,
@@ -140,6 +156,7 @@ namespace DATN_Web.DataAccesLayer
             {
                 cmd.Parameters.Add("@OrderId", SqlDbType.Int).Value = o.OrderId;
                 cmd.Parameters.Add("@CustomerId", SqlDbType.Int).Value = o.CustomerId;
+                cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value = (object)o.CategoryId ?? DBNull.Value;
 
                 var req = cmd.Parameters.Add("@DeviceRequirement", SqlDbType.NVarChar, 1000);
                 req.Value = string.IsNullOrWhiteSpace(o.DeviceRequirement) ? (object)DBNull.Value : o.DeviceRequirement.Trim();

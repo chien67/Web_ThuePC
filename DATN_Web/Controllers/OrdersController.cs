@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
+using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.Entities;
 using DATN_Web.Models.ViewModels;
 
@@ -13,11 +14,13 @@ namespace DATN_Web.Controllers
     {
         private readonly CustomerBLL _customerBll;
         private readonly OrderBLL _orderBll;
+        private readonly CustomerDeviceBLL _cusDeviceBll;
 
-        public OrdersController(CustomerBLL customerBll, OrderBLL orderBll)
+        public OrdersController(CustomerBLL customerBll, OrderBLL orderBll, CustomerDeviceBLL cusDeviceBll)
         {
             _customerBll = customerBll;
             _orderBll = orderBll;
+            _cusDeviceBll = cusDeviceBll;
         }
         // GET: Orders
         public ActionResult Index()
@@ -30,6 +33,14 @@ namespace DATN_Web.Controllers
         {
             var cus = _customerBll.GetCustomerDetail(customerId);
             if (cus == null) return HttpNotFound();
+            // 1) Lấy danh mục để đổ dropdown
+            var categories = _cusDeviceBll.GetCategories(); // hoặc bll.GetCategories() đúng theo tên biến của bạn
+
+            ViewBag.Categories = categories.Select(x => new SelectListItem
+            {
+                Value = x.Id.ToString(),
+                Text = x.Name
+            }).ToList();
 
             var vm = new CreateOrderVM
             {
@@ -89,12 +100,22 @@ namespace DATN_Web.Controllers
             var order = _orderBll.GetOrder(id);
             if (order == null) return HttpNotFound();
 
-            var cus = _customerBll.GetCustomerDetail(order.CustomerId);
+            var cus = _customerBll.GetCustomerDetail(order.Order.CustomerId);
+            if (cus == null) return HttpNotFound();
 
+            // 3️⃣ Lấy danh sách danh mục để đổ dropdown
+            var categories = _cusDeviceBll.GetCategories(); // hoặc BLL bạn đang dùng
+
+            ViewBag.Categories = categories.Select(x => new SelectListItem
+            {
+                Value = x.Id.ToString(),
+                Text = x.Name,
+                Selected = (order.Order.CategoryId == x.Id) // ⭐ chọn đúng danh mục hiện tại
+            }).ToList();
             var vm = new CreateOrderVM
             {
                 Customer = cus,
-                Order = order
+                Order = order.Order
             };
             return View("Edit", vm);
         }

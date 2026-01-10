@@ -16,7 +16,7 @@ namespace DATN_Web.DataAccesLayer
         {
             return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
         }
-        // 1) Lấy danh mục để đổ dropdown
+        // Lấy danh mục để đổ dropdown
         public List<(int Id, string Name)> GetCategories()
         {
             const string sql = @"SELECT Id, CategoryName FROM DeviceCategory ORDER BY CategoryName";
@@ -39,7 +39,7 @@ namespace DATN_Web.DataAccesLayer
             return list;
         }
 
-        // 2) Lấy model theo danh mục (để Ajax đổ dropdown Model/Cấu hình + tồn kho)
+        // Lấy model theo danh mục (để Ajax đổ dropdown Model/Cấu hình + tồn kho)
         public List<DeviceModelOptionDto> GetModelsByCategory(int categoryId)
         {
             const string sql = @"
@@ -76,7 +76,7 @@ namespace DATN_Web.DataAccesLayer
             return list;
         }
 
-        // 3) Chức năng XUẤT thiết bị cho khách (transaction)
+        // Chức năng XUẤT thiết bị cho khách (transaction)
         //    - insert vào CustomerDevices
         //    - update tồn kho trong DeviceModel
         public void AssignDeviceToCustomer(int customerId, int modelId, int quantity)

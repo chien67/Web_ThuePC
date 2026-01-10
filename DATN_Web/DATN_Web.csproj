@@ -193,6 +193,7 @@
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
     <Compile Include="Models\ViewModels\ImportDeviceVM.cs" />
     <Compile Include="Models\ViewModels\LoginVM.cs" />
+    <Compile Include="Models\ViewModels\OrderDetailVM.cs" />
     <Compile Include="Models\ViewModels\OrderListRow.cs" />
     <Compile Include="Models\ViewModels\Orders3StatusVM.cs" />
     <Compile Include="Models\ViewModels\RegisterVM.cs" />

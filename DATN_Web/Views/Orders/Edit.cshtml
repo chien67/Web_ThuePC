@@ -129,6 +129,7 @@
                             <table class="table table-bordered table-hover" id="detailTable">
                                 <thead class="text-center">
                                     <tr>
+                                        <th>Loại thiết bị</th>
                                         <th>Yêu cầu thiết bị</th>
                                         <th style="width:120px;">Số lượng</th>
                                         <th style="width:120px;">Số ngày</th>
@@ -138,6 +139,12 @@
                                 </thead>
                                 <tbody>
                                     <tr>
+                                        <td>
+                                            @Html.DropDownListFor(m => m.Order.CategoryId,
+                                                                   (IEnumerable<SelectListItem>)ViewBag.Categories,
+                                                                   "-- Chọn danh mục --",
+                                                                   new { @class = "form-control" })
+                                        </td>
                                         <td>
                                             <textarea name="Order.DeviceRequirement"
                                                       class="form-control" rows="2">@Model.Order.DeviceRequirement</textarea>
@@ -153,7 +160,7 @@
                                                    value="@Model.Order.RentDays" />
                                         </td>
                                         <td>
-                                            @Html.TextBoxFor(m => m.Order.UnitPrice, "{0:0.00}",new { @class = "form-control" })
+                                            @Html.TextBoxFor(m => m.Order.UnitPrice, "{0:0.00}", new { @class = "form-control" })
                                         </td>
                                         <td>
                                             @Html.TextBoxFor(m => m.Order.DepositAmount, "{0:0.00}", new { @class = "form-control" })
@@ -183,7 +190,7 @@
                             <i class="fas fa-trash mr-1"></i> Huỷ đơn hàng
                         </button>
                         <button href="@Url.Action("DetailCustomers","Customers", new { id = Model.Customer.CustomerId })"
-                           class="btn btn-secondary px-4 ml-2">
+                                class="btn btn-secondary px-4 ml-2">
                             <i class="fas fa-times mr-1"></i> Thoát
                         </button>
                     </div>
