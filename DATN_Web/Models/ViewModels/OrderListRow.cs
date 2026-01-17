@@ -15,7 +15,7 @@ namespace DATN_Web.Models.ViewModels
         public int RentDays { get; set; }
         public decimal UnitPrice { get; set; }
         public byte Status { get; set; }
-
+        public decimal DepositAmount { get; set; }
         public byte CustomerType { get; set; }
         public string CustomerName { get; set; }
         public string RepresentativeName { get; set; }

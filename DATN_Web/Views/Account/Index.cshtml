@@ -39,7 +39,7 @@
                                                 <td>@u.Username</td>
                                                 <td>@u.FullName</td>
                                                 <td>@u.Email</td>
-                                                <td>@(u.Role == 2 ? "Admin" : "User")</td>
+                                                <td>@(u.Role == 1 ? "Admin" : (u.Role == 3 ? "Quản lý kho" : "User"))</td>
                                                 <td>@(u.IsActive ? "Hoạt động" : "Khóa")</td>
                                                 <td>
                                                     <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers", new { id = u.UserId })">

@@ -11,9 +11,11 @@ namespace DATN_Web.Models.ViewModels
         public int CustomerId { get; set; }
         public int? CategoryId { get; set; }
         public int? ModelId { get; set; }
+        public int DeliveryUserId { get; set; }
         public int InStockQuantity { get; set; }
         public int Quantity { get; set; }
         //controller đổ dropdown danh mục
         public List<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> DeliveryUsers { get; set; } = new List<SelectListItem>();
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.DTO;
+using DATN_Web.Models.Entities;
 using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.BusinessLayer
@@ -17,7 +18,10 @@ namespace DATN_Web.BusinessLayer
         {
             return _dal.GetCategories();
         }
-
+        public List<User> GetDeliveryUsers()
+        {
+            return _dal.GetDeliveryUsers();
+        }
         // 2) Model theo danh mục (Ajax)
         public List<DeviceModelOptionDto> GetModelsByCategory(int categoryId)
         {
@@ -26,14 +30,10 @@ namespace DATN_Web.BusinessLayer
         }
 
         // 3) Xuất thiết bị cho khách
-        public void AssignDeviceToCustomer(int customerId, int modelId, int quantity)
+        public void AssignDeviceToCustomer(int customerId, int modelId, int quantity, int deliveryUserId)
         {
-            if (customerId <= 0) throw new Exception("CustomerId không hợp lệ.");
-            if (modelId <= 0) throw new Exception("ModelId không hợp lệ.");
-            if (quantity <= 0) throw new Exception("Số lượng phải > 0.");
-
             // DAL đã có check tồn kho + transaction
-            _dal.AssignDeviceToCustomer(customerId, modelId, quantity);
+            _dal.AssignDeviceToCustomer(customerId, modelId, quantity, deliveryUserId);
         }
         public List<CustomerDeviceRowDto> GetDevicesByCustomerId(int customerId, bool onlyInUse = true)
         {
@@ -52,6 +52,25 @@ namespace DATN_Web.BusinessLayer
         {
             if (customerId <= 0) return new List<CustomerDeviceRowDto>();
             return _dal.GetReturnHistoryByCustomerId(customerId);
+        }
+        // Lấy danh sách thiết bị chờ nhận của nhân viên
+        public List<CustomerDevice> GetWaitingReceive(int deliveryUserId)
+        {
+            if (deliveryUserId <= 0)
+                throw new Exception("Người dùng không hợp lệ.");
+
+            return _dal.GetWaitingReceiveByDeliveryUser(deliveryUserId);
+        }
+
+        // Nhân viên xác nhận đã nhận & giao cho khách
+        public void Confirm(int customerDeviceId, int deliveryUserId)
+        {
+            if (customerDeviceId <= 0)
+                throw new Exception("Thiết bị không hợp lệ.");
+
+            if (deliveryUserId <= 0)
+                throw new Exception("Người dùng không hợp lệ.");
+            _dal.ConfirmByDeliveryUser(customerDeviceId, deliveryUserId);
         }
     }
 }

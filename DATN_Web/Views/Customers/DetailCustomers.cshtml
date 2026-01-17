@@ -1,4 +1,5 @@
 ﻿@model DATN_Web.Models.ViewModels.CustomerDetailVM
+@using DATN_Web.Models.Enum
 @{
     ViewBag.Title = "Chi tiết khách hàng";
 }
@@ -80,26 +81,26 @@
                 </div>
                 <div class="card-body p-0">
                     @{
-                        Func<byte, string> statusText = s =>
+                        Func<OrderStatus, string> statusText = s =>
                         {
                             switch (s)
                             {
-                                case 0: return "Chuẩn bị";
-                                case 1: return "Hoạt động";
-                                case 2: return "Quá hạn";
-                                case 3: return "Kết thúc";
-                                default: return "Không rõ";
+                                case OrderStatus.Preparing: return "Chuẩn bị";
+                                case OrderStatus.Active: return "Hoạt động";
+                                case OrderStatus.Overdue: return "Quá hạn";
+                                case OrderStatus.Finished: return "Kết thúc";
+                                default: return "";
                             }
                         };
 
-                        Func<byte, string> statusCss = s =>
+                        Func<OrderStatus, string> statusCss = s =>
                         {
                             switch (s)
                             {
-                                case 0: return "badge badge-warning";   // Chuẩn bị
-                                case 1: return "badge badge-primary";   // Đã giao
-                                case 2: return "badge badge-danger";    // Quá hạn
-                                case 3: return "badge badge-success";   // Kết thúc
+                                case OrderStatus.Preparing: return "badge badge-warning";   // Chuẩn bị
+                                case OrderStatus.Active: return "badge badge-primary";   // Đã giao
+                                case OrderStatus.Overdue: return "badge badge-danger";    // Quá hạn
+                                case OrderStatus.Finished: return "badge badge-success";   // Kết thúc
                                 default: return "badge badge-dark";
                             }
                         };
@@ -119,9 +120,9 @@
                         <tbody>
                             @if (Model.Orders != null && Model.Orders.Any())
                             {
-                                foreach (var o in Model.Orders.Where(x => x.Status != 3))
+                                foreach (var o in Model.Orders.Where(x => x.Status != DATN_Web.Models.Enum.OrderStatus.Finished))
                                 {
-                                    // Hết hạn: DeliveryDate + RentDays (đúng như hình bạn gửi)
+                                    // Hết hạn: DeliveryDate + RentDays
                                     var expire = o.DeliveryDate.HasValue
                                         ? o.DeliveryDate.Value.Date.AddDays(o.RentDays)
                                         : (DateTime?)null;
@@ -147,11 +148,11 @@
                                             var displayStatus = o.Status;
                                             if (expire.HasValue && DateTime.Today >= expire.Value.Date)
                                             {
-                                                displayStatus = 2; // Quá hạn
+                                                displayStatus = OrderStatus.Overdue; // Quá hạn
                                             }
                                         }
                                         <td class="text-center align-middle">
-                                            <span class="@statusCss(o.Status)">@statusText(o.Status)</span>
+                                            <span class="@statusCss(displayStatus)">@statusText(displayStatus)</span>
                                         </td>
 
                                         <!-- Số ngày -->
@@ -183,16 +184,20 @@
                 <div class="card-header">
                     <h3 class="card-title">Thiết bị</h3>
                     <div class="project-actions text-right">
-                        <div class="btn-group ">
-                            <a class="btn btn-primary"
-                               href="@Url.Action("Create", "CustomerDevices", new { customerId = Model.Customer.CustomerId })">
-                                <i class="fas fa-plus"></i> Thêm mới
-                            </a>
-                            <a class="btn btn-info" href="@Url.Action("EditCustomers","Customers")">
-                                <i class="fas fa-pencil-alt">
-                                </i>
-                                Thu hồi
-                            </a>
+                        <div class="btn-group">
+                            @{
+                                var role = Session["Role"] != null ? Convert.ToInt32(Session["Role"]) : 0;
+                                var currentUserId = Session["UserId"] != null ? Convert.ToInt32(Session["UserId"]) : 0;
+                            }
+                            @if (role == 3)  // 3 = Quản lý kho
+                            {
+                                <div class="btn-group">
+                                    <a class="btn btn-primary"
+                                       href="@Url.Action("Create", "CustomerDevices", new { customerId = Model.Customer.CustomerId })">
+                                        <i class="fas fa-plus"></i> Thêm thiết bị
+                                    </a>
+                                </div>
+                            }
                         </div>
                     </div>
                     <!-- /.card-body -->
@@ -227,10 +232,30 @@
                                         <td class="align-middle">@d.Configuration</td>
                                         <td class="text-center align-middle">@d.Quantity</td>
                                         <td class="text-center align-middle">
-                                            <a class="btn btn-outline-dark btn-sm"
-                                               href="@Url.Action("Return", "CustomerDevices", new { id = d.Id })">
-                                                Thu hồi
-                                            </a>
+                                            @if (role == 3)
+                                            {
+                                                <a class="btn btn-outline-dark btn-sm"
+                                                   href="@Url.Action("Return", "CustomerDevices", new { id = d.Id })">
+                                                    Thu hồi
+                                                </a>
+                                            }
+
+                                            @* NHÂN VIÊN ĐƯỢC GIAO (PHÚ) *@
+                                            else if (role == 1
+                                                  && currentUserId == d.DeliveryUserId
+                                                  && d.Status == DATN_Web.Models.Enum.CustomerDeviceStatus.WaitingReceive)
+                                            {
+                                                <form method="post"
+                                                      action="@Url.Action("Confirm", "CustomerDevices")"
+                                                      style="display:inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@d.Id" />
+                                                    <button class="btn btn-success btn-sm">
+                                                        Xác nhận
+                                                    </button>
+                                                </form>
+                                            }
+
                                         </td>
                                     </tr>
                                 }
@@ -300,12 +325,12 @@
 
                 language: {
                     emptyTable: `
-                        <div class="py-4 text-center text-muted">
-                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                            <div class="font-weight-bold">Chưa có đơn hàng</div>
-                            <div class="small">Nhấn <b>Thêm mới</b> để tạo đơn hàng đầu tiên</div>
-                        </div>
-                    `,
+                            <div class="py-4 text-center text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <div class="font-weight-bold">Chưa có đơn hàng</div>
+                                <div class="small">Nhấn <b>Thêm mới</b> để tạo đơn hàng đầu tiên</div>
+                            </div>
+                        `,
                     zeroRecords: "Không tìm thấy dữ liệu phù hợp"
                 },
 

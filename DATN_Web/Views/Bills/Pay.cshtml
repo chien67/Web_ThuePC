@@ -1,0 +1,47 @@
+﻿@model DATN_Web.Models.Entities.Bill
+@{
+    ViewBag.Title = "Thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Thanh toán đơn hàng</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@using (Html.BeginForm("Pay", "Bills", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.OrderId)
+
+    <div class="form-group">
+        <label>Tiền thuê</label>
+        @Html.TextBoxFor(m => m.RentalAmount, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Tiền cọc</label>
+        @Html.TextBoxFor(m => m.DepositAmount, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Tổng tiền</label>
+        @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Ghi chú</label>
+        @Html.TextAreaFor(m => m.Note, new { @class = "form-control", rows = 3 })
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Xác nhận thanh toán
+    </button>
+
+    <a href="@Url.Action("Index", "Bills")" class="btn btn-secondary">
+        Quay lại
+    </a>
+}

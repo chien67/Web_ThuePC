@@ -6,6 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-9">
             <div class="card">
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
                 <form method="post" action="@Url.Action("CreateOrder","Orders")">
                     @Html.AntiForgeryToken()
                     <!-- nếu cần customerId -->

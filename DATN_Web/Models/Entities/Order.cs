@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using DATN_Web.Models.Enum;
 
 namespace DATN_Web.Models.Entities
 {
@@ -19,6 +20,6 @@ namespace DATN_Web.Models.Entities
         public string DeliveryAddress { get; set; }
         public decimal UnitPrice{ get; set; }
         public decimal DepositAmount { get; set; }
-        public byte Status { get; set; }
+        public OrderStatus Status { get; set; }
     }
 }

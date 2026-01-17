@@ -7,6 +7,9 @@ using System.Linq;
 using System.Web;
 using DATN_Web.Models.DTO;
 using DATN_Web.Models.ViewModels;
+using DATN_Web.Models.Entities;
+using System.Web.Security;
+using DATN_Web.Models.Enum;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -32,6 +35,31 @@ namespace DATN_Web.DataAccesLayer
                     while (rd.Read())
                     {
                         list.Add((Convert.ToInt32(rd["Id"]), rd["CategoryName"].ToString()));
+                    }
+                }
+            }
+
+            return list;
+        }
+        public List<User> GetDeliveryUsers()
+        {
+            var list = new List<User>();
+
+            const string sql = @"SELECT UserId, FullName FROM [Users] WHERE IsActive = 1 AND Role = 1";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new User
+                        {
+                            UserId = reader.GetInt32(0),
+                            FullName = reader.GetString(1)
+                        });
                     }
                 }
             }
@@ -77,13 +105,12 @@ namespace DATN_Web.DataAccesLayer
         }
 
         // Chức năng XUẤT thiết bị cho khách (transaction)
-        //    - insert vào CustomerDevices
-        //    - update tồn kho trong DeviceModel
-        public void AssignDeviceToCustomer(int customerId, int modelId, int quantity)
+        public void AssignDeviceToCustomer(int customerId, int modelId, int quantity, int DeliveryUserId)
         {
             if (customerId <= 0) throw new Exception("CustomerId không hợp lệ.");
             if (modelId <= 0) throw new Exception("ModelId không hợp lệ.");
             if (quantity <= 0) throw new Exception("Số lượng phải > 0.");
+            if (DeliveryUserId <= 0) throw new Exception("Người nhận không hợp lệ");
 
             using (var conn = new SqlConnection(GetConnectionString()))
             {
@@ -115,13 +142,14 @@ namespace DATN_Web.DataAccesLayer
 
                         // 3.2) Insert vào CustomerDevices
                         const string sqlInsert = @"
-                            INSERT INTO CustomerDevices(CustomerId, ModelId, DeliveryDate, Quantity, Status)
-                            VALUES (@CustomerId, @ModelId, @DeliveryDate, @Quantity, 1)";
+                            INSERT INTO CustomerDevices(CustomerId, ModelId, DeliveryUserId, DeliveryDate, Quantity, Status)
+                            VALUES (@CustomerId, @ModelId, @DeliveryUserId, @DeliveryDate, @Quantity, 1)";
 
                         using (var cmd = new SqlCommand(sqlInsert, conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@CustomerId", customerId);
                             cmd.Parameters.AddWithValue("@ModelId", modelId);
+                            cmd.Parameters.AddWithValue("@DeliveryUserId", DeliveryUserId);
                             cmd.Parameters.AddWithValue("@DeliveryDate", DateTime.Today);
                             cmd.Parameters.AddWithValue("@Quantity", quantity);
 
@@ -153,6 +181,68 @@ namespace DATN_Web.DataAccesLayer
                 }
             }
         }
+        // 1. Danh sách thiết bị chờ nhận của 1 nhân viên
+        public List<CustomerDevice> GetWaitingReceiveByDeliveryUser(int deliveryUserId)
+        {
+            var list = new List<CustomerDevice>();
+
+            const string sql = @"
+                    SELECT Id, CustomerId, ModelId, Quantity, DeliveryDate, Status
+                    FROM CustomerDevices
+                    WHERE DeliveryUserId = @DeliveryUserId
+                      AND Status = @Status";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@DeliveryUserId", deliveryUserId);
+                cmd.Parameters.AddWithValue("@Status",
+                    (int)CustomerDeviceStatus.WaitingReceive);
+
+                conn.Open();
+                using (var rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new CustomerDevice
+                        {
+                            Id = (int)rd["Id"],
+                            CustomerId = (int)rd["CustomerId"],
+                            ModelId = (int)rd["ModelId"],
+                            Quantity = (int)rd["Quantity"],
+                            DeliveryDate = rd["DeliveryDate"] == DBNull.Value
+                               ? (DateTime?)null
+                               : Convert.ToDateTime(rd["DeliveryDate"]),
+                            Status = (CustomerDeviceStatus)Convert.ToInt32(rd["Status"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // 2. Nhân viên xác nhận nhận & giao
+        public void ConfirmByDeliveryUser(int customerDeviceId, int deliveryUserId)
+        {
+            const string sql = @"UPDATE CustomerDevices
+            SET Status = 2 WHERE Id = @Id
+              AND DeliveryUserId = @DeliveryUserId
+              AND Status = 1";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", customerDeviceId);
+                cmd.Parameters.AddWithValue("@DeliveryUserId", deliveryUserId);
+
+                conn.Open();
+                int affected = cmd.ExecuteNonQuery();
+
+                if (affected == 0)
+                    throw new Exception(
+                        "Không thể xác nhận (sai người nhận hoặc sai trạng thái).");
+            }
+        }
         // Trả về Ds ra ngoài bảng detailcustomer
         public List<CustomerDeviceRowDto> GetDevicesByCustomerId(int customerId, bool onlyInUse = true)
         {
@@ -162,6 +252,7 @@ namespace DATN_Web.DataAccesLayer
                                      cd.DeliveryDate,
                                      cd.Quantity,
                                      cd.Status,
+                                     cd.DeliveryUserId,
                                      dc.CategoryName,
                                      dm.ModelName,
                                      dm.Configuration
@@ -169,7 +260,6 @@ namespace DATN_Web.DataAccesLayer
                                  INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
                                  INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
                                  WHERE cd.CustomerId = @CustomerId
-                                   AND (@OnlyInUse = 0 OR cd.Status = 1)
                                  ORDER BY cd.DeliveryDate DESC, cd.Id DESC;";
 
             var list = new List<CustomerDeviceRowDto>();
@@ -190,7 +280,8 @@ namespace DATN_Web.DataAccesLayer
                             Id = Convert.ToInt32(rd["Id"]),
                             DeliveryDate = rd["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["DeliveryDate"]),
                             Quantity = Convert.ToInt32(rd["Quantity"]),
-                            Status = Convert.ToByte(rd["Status"]),
+                            Status = (CustomerDeviceStatus)Convert.ToInt32(rd["Status"]),
+                            DeliveryUserId = Convert.ToInt32(rd["DeliveryUserId"]),
                             CategoryName = rd["CategoryName"].ToString(),
                             ModelName = rd["ModelName"].ToString(),
                             Configuration = rd["Configuration"].ToString()
@@ -201,6 +292,7 @@ namespace DATN_Web.DataAccesLayer
 
             return list;
         }
+
         // trả về 1 dòng đang dùng
         public ReturnDeviceVM GetReturnFormData(int customerDeviceId)
         {
@@ -311,10 +403,10 @@ namespace DATN_Web.DataAccesLayer
                             }
                         }
 
-                        // 3) Ghi lịch sử thu hồi (Status=2) với số lượng thu hồi tránh mất lịch sử
+                        // 3) Ghi lịch sử thu hồi (Status=3) với số lượng thu hồi tránh mất lịch sử
                         const string sqlInsertReturn = @"
                     INSERT INTO CustomerDevices(CustomerId, ModelId, DeliveryDate, Quantity, Status, ReturnDate)
-                    VALUES (@CustomerId, @ModelId, NULL, @Qty, 2, @ReturnDate)";
+                    VALUES (@CustomerId, @ModelId, NULL, @Qty, 3, @ReturnDate)";
 
                         using (var cmd = new SqlCommand(sqlInsertReturn, conn, tran))
                         {
@@ -365,7 +457,7 @@ namespace DATN_Web.DataAccesLayer
         INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
         INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
         WHERE cd.CustomerId = @CustomerId
-          AND cd.Status = 2
+          AND cd.Status = 3
         ORDER BY cd.ReturnDate DESC, cd.Id DESC;";
 
             var list = new List<CustomerDeviceRowDto>();
@@ -385,7 +477,7 @@ namespace DATN_Web.DataAccesLayer
                             Id = Convert.ToInt32(rd["Id"]),
                             DeliveryDate = rd["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["DeliveryDate"]),
                             Quantity = Convert.ToInt32(rd["Quantity"]),
-                            Status = Convert.ToByte(rd["Status"]),
+                            Status = (CustomerDeviceStatus)Convert.ToInt32(rd["Status"]),
                             CategoryName = rd["CategoryName"].ToString(),
                             ModelName = rd["ModelName"].ToString(),
                             Configuration = rd["Configuration"].ToString()
@@ -393,8 +485,8 @@ namespace DATN_Web.DataAccesLayer
                     }
                 }
             }
-
             return list;
         }
+
     }
 }

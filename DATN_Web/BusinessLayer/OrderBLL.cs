@@ -59,7 +59,7 @@ namespace DATN_Web.BusinessLayer
                 var expireDate = o.DeliveryDate.Value.Date.AddDays(o.RentDays);
 
                 if (today >= expireDate)
-                    o.Status = 2; // Quá hạn
+                    o.Status = OrderStatus.Overdue; // Quá hạn
             }
 
             return list;
@@ -103,7 +103,7 @@ namespace DATN_Web.BusinessLayer
             if (order == null) return false;
 
             // chỉ cho kết thúc khi đang hoạt động
-            if (order.Order.Status != 1 && order.Order.Status != 2) return false;
+            if (order.Order.Status != OrderStatus.Active && order.Order.Status != OrderStatus.Overdue) return false;
 
 
             return _orderDal.FinishOrder(orderId);
@@ -117,6 +117,38 @@ namespace DATN_Web.BusinessLayer
                 Finished = _orderDal.GetOrdersByStatus(OrderStatus.Finished),
             };
         }
+        public bool CanCreateOrder(int categoryId,int quantity,DateTime startDate,DateTime endDate,out string error)
+        {
+            error = null;
 
+
+            for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+            {
+                int totalStock = _orderDal.GetTotalStockByCategory(categoryId, date);
+                int used = _orderDal.GetUsedQuantityByDate(categoryId, date);
+
+                if (used + quantity > totalStock)
+                {
+                    error = $"Ngày {date:dd/MM/yyyy} không đủ máy. " +
+                            $"Đã có {used}/{totalStock} máy được đặt.";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        public List<Order> GetOrdersReadyForPayment()
+        {
+            return _orderDal.GetOrdersReadyForPayment();
+        }
+        public Order GetById(int orderId)
+        {
+            if (orderId <= 0) return null;
+
+            var order = _orderDal.GetOrderEntityById(orderId);
+            if (order == null) return null;
+
+            return order;
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace DATN_Web.Models.Entities
         public string PasswordHash { get; set; }  // lưu hash sha256
         public string FullName { get; set; }
         public string Email { get; set; }
-        public byte Role { get; set; }            // 1:Staff, 2:Admin
+        public byte Role { get; set; }            
         public bool IsActive { get; set; }
     }
 }

@@ -20,12 +20,10 @@ namespace DATN_Web.BusinessLayer
         {
             return dal.CreateDeviceCategory(deviceCategory);
         }
-        // Trang Index danh mục (có thống kê)
         public List<DeviceCategoryVM> GetAllWithStats()
         {
             var list = dal.GetCategoryStats();
 
-            // (Tuỳ chọn) xử lý nghiệp vụ nhẹ ở đây nếu cần:
             // ví dụ đảm bảo không âm 
             foreach (var x in list)
             {

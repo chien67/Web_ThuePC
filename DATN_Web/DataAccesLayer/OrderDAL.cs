@@ -68,7 +68,7 @@ namespace DATN_Web.DataAccesLayer
                         {
                             OrderId = (int)r["OrderId"],
                             CustomerId = (int)r["CustomerId"],
-                            CategoryId = r["CategoryId"] == DBNull.Value ? (int?) null : Convert.ToInt32(r["CategoryId"]),
+                            CategoryId = r["CategoryId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["CategoryId"]),
                             CreatedAt = (DateTime)r["CreatedAt"],
                             DeliveryDate = r["DeliveryDate"] as DateTime?,
                             ReturnDate = r["ReturnDate"] as DateTime?,
@@ -77,7 +77,7 @@ namespace DATN_Web.DataAccesLayer
                             DeviceRequirement = r["DeviceRequirement"] as string,
                             UnitPrice = r["UnitPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(r["UnitPrice"]),
                             Quantity = (int)r["Quantity"],
-                            Status = Convert.ToByte(r["Status"])
+                            Status = (OrderStatus)Convert.ToByte(r["Status"])
                         });
                     }
                 }
@@ -121,7 +121,7 @@ namespace DATN_Web.DataAccesLayer
                         DeliveryAddress = r["DeliveryAddress"] == DBNull.Value ? null : r["DeliveryAddress"].ToString(),
                         UnitPrice = r["UnitPrice"] == DBNull.Value ? 0m : Convert.ToDecimal(r["UnitPrice"]),
                         DepositAmount = r["DepositAmount"] == DBNull.Value ? 0m : Convert.ToDecimal(r["DepositAmount"]),
-                        Status = r["Status"] == DBNull.Value ? (byte)0 : Convert.ToByte(r["Status"])
+                        Status = r["Status"] == DBNull.Value ? (byte)OrderStatus.Preparing : (OrderStatus)Convert.ToByte(r["Status"])
                     };
 
                     return new OrderDetailVM
@@ -250,6 +250,100 @@ namespace DATN_Web.DataAccesLayer
                 }
             }
             return list;
+        }
+
+        // Kiểm tra xem số lượng máy còn đủ không
+        public int GetTotalStockByCategory(int categoryId, DateTime date)
+        {
+            const string sql = @"SELECT ISNULL(SUM(InStockQuantity), 0)
+                                 FROM DeviceModel
+                                 WHERE CategoryId = @CategoryId";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value = categoryId;
+                conn.Open();
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+        public int GetUsedQuantityByDate(int categoryId, DateTime checkDate)
+        {
+            const string sql = @"SELECT ISNULL(SUM(o.Quantity), 0)
+                                 FROM Orders o
+                                 WHERE o.CategoryId = @CategoryId
+                                   AND o.Status <> 3                 -- trừ Finished
+                                   AND o.DeliveryDate <= @CheckDate
+                                   AND o.ReturnDate   >= @CheckDate";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@CategoryId", SqlDbType.Int).Value = categoryId;
+                cmd.Parameters.Add("@CheckDate", SqlDbType.Date).Value = checkDate.Date;
+
+                conn.Open();
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+        public List<Order> GetOrdersReadyForPayment()
+        {
+            List<Order> list = new List<Order>();
+
+            string sql = "SELECT * FROM Orders WHERE Status = 3";
+
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    list.Add(new Order
+                    {
+                        OrderId = (int)rd["OrderId"],
+                        CustomerId = (int)rd["CustomerId"],
+                        RentDays = (int)rd["RentDays"],
+                        UnitPrice = (decimal)rd["UnitPrice"],
+                        Quantity = (int)rd["Quantity"],
+                        DepositAmount = rd["DepositAmount"] == DBNull.Value
+                                        ? 0
+                                        : (decimal)rd["DepositAmount"],
+                        Status = (OrderStatus)Convert.ToByte(rd["Status"])
+                    });
+                }
+            }
+            return list;
+        }
+        public Order GetOrderEntityById(int orderId)
+        {
+            const string sql = @"SELECT * FROM Orders WHERE OrderId = @OrderId";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+                conn.Open();
+
+                using (var r = cmd.ExecuteReader())
+                {
+                    if (!r.Read()) return null;
+
+                    return new Order
+                    {
+                        OrderId = Convert.ToInt32(r["OrderId"]),
+                        CustomerId = Convert.ToInt32(r["CustomerId"]),
+                        RentDays = Convert.ToInt32(r["RentDays"]),
+                        UnitPrice = Convert.ToDecimal(r["UnitPrice"]),
+                        Quantity = Convert.ToInt32(r["Quantity"]),
+                        DepositAmount = r["DepositAmount"] == DBNull.Value
+                            ? 0
+                            : Convert.ToDecimal(r["DepositAmount"]),
+                        Status = (OrderStatus)Convert.ToByte(r["Status"])
+                    };
+                }
+            }
         }
     }
 }

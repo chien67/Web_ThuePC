@@ -1,0 +1,101 @@
+﻿@model DATN_Web.Models.ViewModels.Orders3StatusVM
+@using DATN_Web.Models.Enum
+@{
+    ViewBag.Title = "Danh sách thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Vui lòng nhập đầy đủ thông tin</h3>
+                    </div>
+                    <table id="ordersTable" class="table table-bordered table-hover mb-0">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Ngày giao</th>
+                                <th>Nội dung</th>
+                                <th>Tình trạng</th>
+                                <th>Số ngày</th>
+                                <th>Tạm tính</th>
+                                <th style="width:110px;"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (Model.Finished != null && Model.Finished.Any())
+                            {
+                                foreach (var o in Model.Finished)
+                                {
+                                    var rental = o.RentDays * o.UnitPrice * o.Quantity;
+                                    var total = rental + o.DepositAmount;
+
+                                    <tr>
+                                        <!-- Ngày giao -->
+                                        <td class="text-center align-middle">
+                                            @(o.DeliveryDate?.ToString("dd/MM/yyyy"))
+                                        </td>
+
+                                        <!-- Nội dung -->
+                                        <td class="align-middle">
+                                            <div class="text-primary fw-bold">
+                                                Yêu cầu: @o.DeviceRequirement
+                                            </div>
+                                            <div class="text-primary fw-bold">
+                                                Thông tin:
+                                                | @o.Quantity Máy
+                                                | @o.RentDays Ngày
+                                                | @String.Format("{0:N0}", o.UnitPrice) VNĐ |
+                                            </div>
+                                            <div>
+                                                <a href="@Url.Action("Detail","Orders", new { id = o.OrderId })">
+                                                    ► Chi tiết
+                                                </a>
+                                            </div>
+                                        </td>
+
+                                        <!-- Tình trạng -->
+                                        <td class="text-center align-middle">
+                                            <span class="badge bg-success">
+                                                Đã trả máy
+                                            </span>
+                                        </td>
+
+                                        <!-- Số ngày -->
+                                        <td class="text-center align-middle">
+                                            @o.RentDays ngày
+                                        </td>
+
+                                        <!-- Tạm tính -->
+                                        <td class="text-center align-middle">
+                                            <b>@String.Format("{0:N0}", total)</b> VNĐ
+                                        </td>
+
+                                        <!-- Action -->
+                                        <td class="text-center align-middle">
+                                            <a class="btn btn-success btn-sm"
+                                               href="@Url.Action("Pay", "Bills", new { orderId = o.OrderId })">
+                                                Thanh toán
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        Không có đơn hàng cần thanh toán
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>

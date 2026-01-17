@@ -22,6 +22,16 @@ namespace DATN_Web.Controllers
             _orderBll = orderBll;
             _cusDeviceBll = cusDeviceBll;
         }
+        private void LoadCategories()
+        {
+            ViewBag.Categories = _cusDeviceBll.GetCategories()
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name
+                })
+                .ToList();
+        }
         // GET: Orders
         public ActionResult Index()
         {
@@ -34,7 +44,7 @@ namespace DATN_Web.Controllers
             var cus = _customerBll.GetCustomerDetail(customerId);
             if (cus == null) return HttpNotFound();
             // 1) Lấy danh mục để đổ dropdown
-            var categories = _cusDeviceBll.GetCategories(); // hoặc bll.GetCategories() đúng theo tên biến của bạn
+            var categories = _cusDeviceBll.GetCategories(); 
 
             ViewBag.Categories = categories.Select(x => new SelectListItem
             {
@@ -60,6 +70,8 @@ namespace DATN_Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateOrder(CreateOrderVM vm)
         {
+            LoadCategories();
+
             if (vm == null || vm.Order == null)
             {
                 TempData["Error"] = "Đơn hàng không hợp lệ.";
@@ -81,7 +93,26 @@ namespace DATN_Web.Controllers
                 TempData["Error"] = "Vui lòng nhập đầy đủ: ngày giao/trả, yêu cầu thiết bị, số lượng, đơn giá.";
                 return View(vm);
             }
+            // 🔴 BƯỚC CHECK TỒN KHO THEO NGÀY TRÙNG
+            if (!vm.Order.CategoryId.HasValue)
+            {
+                TempData["Error"] = "Vui lòng chọn danh mục thiết bị.";
+                return View(vm);
+            }
+            string error;
+            bool canCreate = _orderBll.CanCreateOrder(
+                vm.Order.CategoryId.Value,
+                vm.Order.Quantity,
+                vm.Order.DeliveryDate.Value,
+                vm.Order.ReturnDate.Value,
+                out error
+            );
 
+            if (!canCreate)
+            {
+                ModelState.AddModelError("", error);
+                return View(vm);
+            }
             int orderId = _orderBll.CreateOrder(vm.Order);
 
             if (orderId > 0)

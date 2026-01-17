@@ -149,20 +149,22 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="BusinessLayer\BillBLL.cs" />
     <Compile Include="BusinessLayer\CustomerBLL.cs" />
     <Compile Include="BusinessLayer\CustomerDeviceBLL.cs" />
     <Compile Include="BusinessLayer\DeviceCategoryBLL.cs" />
     <Compile Include="BusinessLayer\DeviceModelBLL.cs" />
     <Compile Include="BusinessLayer\OrderBLL.cs" />
     <Compile Include="BusinessLayer\AuthBLL.cs" />
+    <Compile Include="Controllers\BillsController.cs" />
     <Compile Include="Controllers\CustomerDevicesController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\DeviceModelsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\WarehouseController.cs" />
+    <Compile Include="DataAccesLayer\BillDAL.cs" />
     <Compile Include="DataAccesLayer\CustomerDAL.cs" />
     <Compile Include="DataAccesLayer\CustomerDeviceDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
@@ -172,11 +174,14 @@
     <Compile Include="DataAccesLayer\OrderDetailDAL.cs" />
     <Compile Include="DataAccesLayer\UserDAL.cs" />
     <Compile Include="Filters\AdminOnlyAttribute.cs" />
+    <Compile Include="Filters\ManagerOnlyAttribute.cs" />
+    <Compile Include="Filters\WarehouseOnlyAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\DTO\CustomerDeviceRowDto.cs" />
     <Compile Include="Models\DTO\DeviceModelOptionDto.cs" />
+    <Compile Include="Models\Entities\Bill.cs" />
     <Compile Include="Models\Entities\Customer.cs" />
     <Compile Include="Models\Entities\CustomerDevice.cs" />
     <Compile Include="Models\Entities\DeviceCategory.cs" />
@@ -185,6 +190,7 @@
     <Compile Include="Models\Entities\Order.cs" />
     <Compile Include="Models\Entities\OrderDetail.cs" />
     <Compile Include="Models\Entities\User.cs" />
+    <Compile Include="Models\Enum\CustomerDeviceStatus.cs" />
     <Compile Include="Models\Enum\OrderStatus.cs" />
     <Compile Include="Models\ViewModels\CreateOrderVM.cs" />
     <Compile Include="Models\ViewModels\CustomerDetailVM.cs" />
@@ -2030,10 +2036,11 @@
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\CustomerDevices\Create.cshtml" />
     <Content Include="Views\CustomerDevices\Return.cshtml" />
+    <Content Include="Views\Bills\Index.cshtml" />
+    <Content Include="Views\Bills\Pay.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\User\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

@@ -64,7 +64,8 @@
                             @Html.DropDownListFor(m => m.Role,
                                 new SelectList(new[] {
                                     new { Value = (byte)1, Text = "User" },
-                                    new { Value = (byte)2, Text = "Admin" }
+                                    new { Value = (byte)2, Text = "Admin" },
+                                    new { Value = (byte)3, Text = "Quản lý kho" }
                                 }, "Value", "Text"),
                                 new { @class = "form-control" })
                         </div>
