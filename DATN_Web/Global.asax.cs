@@ -42,13 +42,14 @@ namespace DATN_Web
             builder.RegisterType<CustomerDeviceBLL>().AsSelf();
             builder.RegisterType<BillDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<BillBLL>().AsSelf().InstancePerRequest();
+            builder.RegisterType<DeviceBrokenLogDAL>().AsSelf();
             // ...
 
             // 2. Đăng ký các BLL (BLL sẽ tự động nhận DAL qua Constructor)
             // Dùng AsSelf() và InstancePerRequest() để quản lý vòng đời
             builder.RegisterType<DeviceModelBLL>().AsSelf().InstancePerRequest();
             builder.RegisterType<CustomerBLL>().AsSelf().InstancePerRequest();
-
+            builder.RegisterType<DeviceBrokenLogBLL>().AsSelf();
             // BƯỚC 4: Xây dựng Container và thiết lập Dependency Resolver
             var container = builder.Build();
 

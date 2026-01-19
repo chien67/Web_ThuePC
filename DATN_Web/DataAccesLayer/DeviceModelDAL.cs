@@ -183,6 +183,36 @@ namespace DATN_Web.DataAccesLayer
             }
             return model;
         }
-        
+        public List<DeviceModel> GetAll()
+        {
+            string connStr = GetConnectionString();
+            var list = new List<DeviceModel>();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "SELECT * FROM DeviceModel ORDER BY ModelName";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    list.Add(new DeviceModel
+                    {
+                        Id = (int)rd["Id"],
+                        CategoryId = (int)rd["CategoryId"],
+                        ModelName = rd["ModelName"].ToString(),
+                        Configuration = rd["Configuration"].ToString(),
+                        TotalQuantity = (int)rd["TotalQuantity"],
+                        InStockQuantity = (int)rd["InStockQuantity"],
+                        InUseQuantity = (int)rd["InUseQuantity"],
+                        BrokenQuantity = (int)rd["BrokenQuantity"],
+                        LastUpdatedAt = (DateTime)rd["LastUpdatedAt"]
+                    });
+                }
+            }
+            return list;
+        }
     }
 }

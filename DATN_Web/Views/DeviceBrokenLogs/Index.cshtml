@@ -1,0 +1,77 @@
+﻿@model List<DATN_Web.Models.DTO.DeviceBrokenLogRowDto>
+@{ ViewBag.Title = "Danh sách thiết bị hỏng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Main content -->
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card">
+                <div class="card-header bg-success">
+                    <h3 class="card-title ">@ViewBag.Title</h3>
+                    <div class="project-actions text-right">
+                        <div class="card-tools">
+                            <a class="btn btn-danger btn-sm"
+                               href="@Url.Action("Create", "DeviceBrokenLogs")">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Báo hỏng thiết bị
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="example2" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Số lượng</th>
+                                            <th>Lý do</th>
+                                            <th>Khách hàng</th>
+                                            <th>Giá sửa</th>
+                                            <th>Ngày báo</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <b>@item.ModelName</b><br />
+                                                    <small class="text-muted">@item.Configuration</small>
+                                                </td>
+                                                <td>@item.Quantity</td>
+                                                <td>@item.BrokenReason</td>
+                                                <td>@item.DisplayCustomer</td>
+                                                <td>@(item.EstimatedCost?.ToString("N0") ?? "-")</td>
+                                                <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <a class="btn btn-info btn-sm" href="@Url.Action("UpdateCost","DeviceBrokenLogs",new { id = item.BrokenLogId })">
+                                                        <i class="fas fa-pencil-alt">
+                                                        </i>
+                                                        Cập nhật
+                                                    </a>
+                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers",new { id = item.BrokenLogId })">
+                                                        <i class="fas fa-trash">
+                                                        </i>
+                                                        Xoá
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>

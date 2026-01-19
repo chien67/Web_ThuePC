@@ -294,21 +294,20 @@ namespace DATN_Web.DataAccesLayer
             return list;
         }
 
-        // trả về 1 dòng đang dùng
+        // thu hồi
         public ReturnDeviceVM GetReturnFormData(int customerDeviceId)
         {
-            const string sql = @"
-        SELECT 
-            cd.Id AS CustomerDeviceId,
-            cd.CustomerId,
-            cd.Quantity AS InUseQuantity,
-            dc.CategoryName,
-            dm.ModelName,
-            dm.Configuration
-        FROM CustomerDevices cd
-        INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
-        INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
-        WHERE cd.Id = @Id AND cd.Status = 2";
+            const string sql = @"SELECT 
+                                    cd.Id AS CustomerDeviceId,
+                                    cd.CustomerId,
+                                    cd.Quantity AS InUseQuantity,
+                                    dc.CategoryName,
+                                    dm.ModelName,
+                                    dm.Configuration
+                                FROM CustomerDevices cd
+                                INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
+                                INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
+                                WHERE cd.Id = @Id AND cd.Status = 2";
 
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
@@ -383,10 +382,9 @@ namespace DATN_Web.DataAccesLayer
 
                         if (remain > 0)
                         {
-                            const string sqlUpdateInUse = @"
-                        UPDATE CustomerDevices
-                        SET Quantity = @Remain
-                        WHERE Id = @Id AND Status = 2";
+                            const string sqlUpdateInUse = @"UPDATE CustomerDevices
+                                                            SET Quantity = @Remain
+                                                            WHERE Id = @Id AND Status = 2";
 
                             using (var cmd = new SqlCommand(sqlUpdateInUse, conn, tran))
                             {
@@ -398,10 +396,9 @@ namespace DATN_Web.DataAccesLayer
                         else
                         {
                             // thu hồi hết: set Status=3 + ReturnDate
-                            const string sqlClose = @"
-                        UPDATE CustomerDevices
-                        SET Status = 3, ReturnDate = @ReturnDate
-                        WHERE Id = @Id AND Status = 2";
+                            const string sqlClose = @"UPDATE CustomerDevices
+                                                      SET Status = 3, ReturnDate = @ReturnDate
+                                                      WHERE Id = @Id AND Status = 2";
 
                             using (var cmd = new SqlCommand(sqlClose, conn, tran))
                             {
@@ -412,11 +409,10 @@ namespace DATN_Web.DataAccesLayer
                         }
 
                         //Cập nhật kho: cộng tồn, trừ đang dùng
-                        const string sqlStock = @"
-                    UPDATE DeviceModel
-                    SET InStockQuantity = InStockQuantity + @Qty,
-                        InUseQuantity = CASE WHEN InUseQuantity >= @Qty THEN InUseQuantity - @Qty ELSE 0 END
-                    WHERE Id = @ModelId";
+                        const string sqlStock = @"UPDATE DeviceModel
+                                                  SET InStockQuantity = InStockQuantity + @Qty,
+                                                      InUseQuantity = CASE WHEN InUseQuantity >= @Qty THEN InUseQuantity - @Qty ELSE 0 END
+                                                  WHERE Id = @ModelId";
 
                         using (var cmd = new SqlCommand(sqlStock, conn, tran))
                         {
@@ -438,21 +434,20 @@ namespace DATN_Web.DataAccesLayer
         // Lịch sử thu hồi
         public List<CustomerDeviceRowDto> GetReturnHistoryByCustomerId(int customerId)
         {
-            const string sql = @"
-        SELECT 
-            cd.Id,
-            cd.ReturnDate AS DeliveryDate,
-            cd.Quantity,
-            cd.Status,
-            dc.CategoryName,
-            dm.ModelName,
-            dm.Configuration
-        FROM CustomerDevices cd
-        INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
-        INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
-        WHERE cd.CustomerId = @CustomerId
-          AND cd.Status = 3
-        ORDER BY cd.ReturnDate DESC, cd.Id DESC;";
+            const string sql = @"SELECT 
+                                     cd.Id,
+                                     cd.ReturnDate AS DeliveryDate,
+                                     cd.Quantity,
+                                     cd.Status,
+                                     dc.CategoryName,
+                                     dm.ModelName,
+                                     dm.Configuration
+                                 FROM CustomerDevices cd
+                                 INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
+                                 INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
+                                 WHERE cd.CustomerId = @CustomerId
+                                   AND cd.Status = 3
+                                 ORDER BY cd.ReturnDate DESC, cd.Id DESC;";
 
             var list = new List<CustomerDeviceRowDto>();
 
@@ -481,6 +476,5 @@ namespace DATN_Web.DataAccesLayer
             }
             return list;
         }
-
     }
 }

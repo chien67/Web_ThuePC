@@ -152,13 +152,17 @@
     <Compile Include="BusinessLayer\BillBLL.cs" />
     <Compile Include="BusinessLayer\CustomerBLL.cs" />
     <Compile Include="BusinessLayer\CustomerDeviceBLL.cs" />
+    <Compile Include="BusinessLayer\DeviceBrokenLogBLL.cs" />
     <Compile Include="BusinessLayer\DeviceCategoryBLL.cs" />
     <Compile Include="BusinessLayer\DeviceModelBLL.cs" />
     <Compile Include="BusinessLayer\OrderBLL.cs" />
     <Compile Include="BusinessLayer\AuthBLL.cs" />
+    <Compile Include="BusinessLayer\ReportBLL.cs" />
     <Compile Include="Controllers\BillsController.cs" />
     <Compile Include="Controllers\CustomerDevicesController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\DeviceBrokenLogsController.cs" />
     <Compile Include="Controllers\DeviceModelsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
@@ -167,11 +171,13 @@
     <Compile Include="DataAccesLayer\BillDAL.cs" />
     <Compile Include="DataAccesLayer\CustomerDAL.cs" />
     <Compile Include="DataAccesLayer\CustomerDeviceDAL.cs" />
+    <Compile Include="DataAccesLayer\DeviceBrokenLogDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceCategoryDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceImportDAL.cs" />
     <Compile Include="DataAccesLayer\DeviceModelDAL.cs" />
     <Compile Include="DataAccesLayer\OrderDAL.cs" />
     <Compile Include="DataAccesLayer\OrderDetailDAL.cs" />
+    <Compile Include="DataAccesLayer\ReportDAL.cs" />
     <Compile Include="DataAccesLayer\UserDAL.cs" />
     <Compile Include="Filters\AdminOnlyAttribute.cs" />
     <Compile Include="Filters\ManagerOnlyAttribute.cs" />
@@ -180,20 +186,26 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\DTO\CustomerDeviceRowDto.cs" />
+    <Compile Include="Models\DTO\DeviceBrokenLogRowDto.cs" />
     <Compile Include="Models\DTO\DeviceModelOptionDto.cs" />
     <Compile Include="Models\Entities\Bill.cs" />
     <Compile Include="Models\Entities\Customer.cs" />
     <Compile Include="Models\Entities\CustomerDevice.cs" />
+    <Compile Include="Models\Entities\DeviceBrokenLog.cs" />
     <Compile Include="Models\Entities\DeviceCategory.cs" />
     <Compile Include="Models\Entities\DeviceModel.cs" />
     <Compile Include="Models\Entities\DeviceImport.cs" />
     <Compile Include="Models\Entities\Order.cs" />
     <Compile Include="Models\Entities\OrderDetail.cs" />
     <Compile Include="Models\Entities\User.cs" />
+    <Compile Include="Models\Enum\DeviceBrokenStatus.cs" />
     <Compile Include="Models\Enum\CustomerDeviceStatus.cs" />
     <Compile Include="Models\Enum\OrderStatus.cs" />
+    <Compile Include="Models\ViewModels\CreateBrokenDeviceVM.cs" />
     <Compile Include="Models\ViewModels\CreateOrderVM.cs" />
+    <Compile Include="Models\ViewModels\CreateRepairOrderVM.cs" />
     <Compile Include="Models\ViewModels\CustomerDetailVM.cs" />
+    <Compile Include="Models\ViewModels\DashboardChartVM.cs" />
     <Compile Include="Models\ViewModels\DeviceCategoryVM.cs" />
     <Compile Include="Models\ViewModels\DeviceImportVM.cs" />
     <Compile Include="Models\ViewModels\DeviceModelCategory.cs" />
@@ -204,6 +216,7 @@
     <Compile Include="Models\ViewModels\Orders3StatusVM.cs" />
     <Compile Include="Models\ViewModels\RegisterVM.cs" />
     <Compile Include="Models\ViewModels\ReturnDeviceVM.cs" />
+    <Compile Include="Models\ViewModels\UpdateRepairCostVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -2016,9 +2029,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\js\adminlte.js.map" />
     <Content Include="Scripts\js\adminlte.min.js.map" />
     <Content Include="Views\Orders\Index.cshtml" />
@@ -2039,6 +2049,13 @@
     <Content Include="Views\CustomerDevices\Return.cshtml" />
     <Content Include="Views\Bills\Index.cshtml" />
     <Content Include="Views\Bills\Pay.cshtml" />
+    <Content Include="Views\DeviceBrokenLogs\Index.cshtml" />
+    <Content Include="Views\DeviceBrokenLogs\Create.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\DeviceBrokenLogs\UpdateCost.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

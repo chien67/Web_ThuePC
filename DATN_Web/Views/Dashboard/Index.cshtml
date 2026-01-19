@@ -1,0 +1,46 @@
+﻿@model DATN_Web.Models.ViewModels.DashboardChartVM
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Báo cáo doanh thu & khách hàng mới</h3>
+                </div>
+
+                <div class="card-body">
+                    <canvas id="barChart" style="min-height:300px"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+
+    <script>
+        var ctx = document.getElementById('barChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Encode(Model.Labels)),
+                datasets: [
+                    {
+                        label: 'Doanh thu',
+                        backgroundColor: '#d1d5db',
+                        data: @Html.Raw(Json.Encode(Model.RevenueData))
+                    },
+                    {
+                        label: 'Khách hàng mới',
+                        backgroundColor: '#3b82f6',
+                        data: @Html.Raw(Json.Encode(Model.CustomerData))
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}

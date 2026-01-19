@@ -122,7 +122,7 @@ namespace DATN_Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Confirm(int id)
         {
-            // LẤY USER ĐANG LOGIN (PHÚ)
+            // LẤY USER ĐANG LOGIN
             int deliveryUserId = Convert.ToInt32(Session["UserId"]);
 
             // GỌI BLL → DAL → UPDATE Status = 2
