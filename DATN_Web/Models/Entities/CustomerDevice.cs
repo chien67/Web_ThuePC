@@ -11,7 +11,7 @@ namespace DATN_Web.Models.Entities
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public int ModelId { get; set; }
-        public int DeliveryUserId { get; set; }
+        public int? DeliveryUserId { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public int Quantity { get; set; }
         public CustomerDeviceStatus Status { get; set; } = CustomerDeviceStatus.WaitingReceive;

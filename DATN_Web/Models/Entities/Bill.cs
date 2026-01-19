@@ -13,7 +13,10 @@ namespace DATN_Web.Models.Entities
         public decimal RentalAmount { get; set; }
         public decimal DepositAmount { get; set; }
         public decimal TotalAmount { get; set; }
-
+        public byte CustomerType { get; set; }
+        public string CustomerName { get; set; }
+        public string CompanyName { get; set; }
+        public string TaxCode { get; set; }
         public DateTime PaidDate { get; set; }
         public int PaidUserId { get; set; }
 

@@ -104,7 +104,7 @@ namespace DATN_Web.DataAccesLayer
             return list;
         }
 
-        // Chức năng XUẤT thiết bị cho khách (transaction)
+        // Chức năng XUẤT thiết bị cho khách
         public void AssignDeviceToCustomer(int customerId, int modelId, int quantity, int DeliveryUserId)
         {
             if (customerId <= 0) throw new Exception("CustomerId không hợp lệ.");
@@ -120,7 +120,7 @@ namespace DATN_Web.DataAccesLayer
                 {
                     try
                     {
-                        // 3.1) Check tồn kho (khóa dòng để tránh 2 người xuất cùng lúc)
+                        // Check tồn kho (khóa dòng để tránh 2 người xuất cùng lúc)
                         const string sqlCheck = @"
                             SELECT InStockQuantity
                             FROM DeviceModel WITH (UPDLOCK, ROWLOCK)
@@ -260,6 +260,7 @@ namespace DATN_Web.DataAccesLayer
                                  INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
                                  INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
                                  WHERE cd.CustomerId = @CustomerId
+                                 AND (@OnlyInUse = 0 OR cd.Status <> 3)
                                  ORDER BY cd.DeliveryDate DESC, cd.Id DESC;";
 
             var list = new List<CustomerDeviceRowDto>();
@@ -281,7 +282,7 @@ namespace DATN_Web.DataAccesLayer
                             DeliveryDate = rd["DeliveryDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(rd["DeliveryDate"]),
                             Quantity = Convert.ToInt32(rd["Quantity"]),
                             Status = (CustomerDeviceStatus)Convert.ToInt32(rd["Status"]),
-                            DeliveryUserId = Convert.ToInt32(rd["DeliveryUserId"]),
+                            DeliveryUserId = rd["DeliveryUserId"] == DBNull.Value ? (int?)null : Convert.ToInt32(rd["DeliveryUserId"]),
                             CategoryName = rd["CategoryName"].ToString(),
                             ModelName = rd["ModelName"].ToString(),
                             Configuration = rd["Configuration"].ToString()
@@ -307,7 +308,7 @@ namespace DATN_Web.DataAccesLayer
         FROM CustomerDevices cd
         INNER JOIN DeviceModel dm ON cd.ModelId = dm.Id
         INNER JOIN DeviceCategory dc ON dm.CategoryId = dc.Id
-        WHERE cd.Id = @Id AND cd.Status = 1";
+        WHERE cd.Id = @Id AND cd.Status = 2";
 
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
@@ -343,11 +344,10 @@ namespace DATN_Web.DataAccesLayer
                 {
                     try
                     {
-                        // 1) Khóa dòng đang dùng để lấy ModelId + Quantity + CustomerId
-                        const string sqlGet = @"
-                    SELECT CustomerId, ModelId, Quantity, Status
-                    FROM CustomerDevices WITH (UPDLOCK, ROWLOCK)
-                    WHERE Id = @Id";
+                        // Khóa dòng đang dùng để lấy ModelId + Quantity + CustomerId
+                        const string sqlGet = @"SELECT CustomerId, ModelId, Quantity, Status
+                                                FROM CustomerDevices WITH (UPDLOCK, ROWLOCK)
+                                                WHERE Id = @Id";
 
                         int customerId, modelId, inUseQty;
                         byte status;
@@ -367,10 +367,18 @@ namespace DATN_Web.DataAccesLayer
                             }
                         }
 
-                        if (status != 1) throw new Exception("Thiết bị này không ở trạng thái đang dùng.");
-                        if (returnQty > inUseQty) throw new Exception("Số lượng thu hồi vượt số đang sử dụng.");
+                        var deviceStatus = (CustomerDeviceStatus)status;
 
-                        // 2) Update dòng đang dùng: giảm Quantity hoặc set Status=2 nếu về 0
+                        if (deviceStatus == CustomerDeviceStatus.WaitingReceive)
+                            throw new Exception("Nhân viên chưa giao máy cho khách.");
+
+                        if (deviceStatus != CustomerDeviceStatus.ReceivedAndDelivered)
+                            throw new Exception("Thiết bị không ở trạng thái cho phép thu hồi.");
+
+                        if (returnQty > inUseQty)
+                            throw new Exception("Số lượng thu hồi vượt số đang sử dụng.");
+
+                        // Update dòng đang dùng: giảm Quantity hoặc set Status=2 nếu về 0
                         int remain = inUseQty - returnQty;
 
                         if (remain > 0)
@@ -378,7 +386,7 @@ namespace DATN_Web.DataAccesLayer
                             const string sqlUpdateInUse = @"
                         UPDATE CustomerDevices
                         SET Quantity = @Remain
-                        WHERE Id = @Id AND Status = 1";
+                        WHERE Id = @Id AND Status = 2";
 
                             using (var cmd = new SqlCommand(sqlUpdateInUse, conn, tran))
                             {
@@ -389,11 +397,11 @@ namespace DATN_Web.DataAccesLayer
                         }
                         else
                         {
-                            // thu hồi hết: set Status=2 + ReturnDate
+                            // thu hồi hết: set Status=3 + ReturnDate
                             const string sqlClose = @"
                         UPDATE CustomerDevices
-                        SET Status = 2, ReturnDate = @ReturnDate
-                        WHERE Id = @Id AND Status = 1";
+                        SET Status = 3, ReturnDate = @ReturnDate
+                        WHERE Id = @Id AND Status = 2";
 
                             using (var cmd = new SqlCommand(sqlClose, conn, tran))
                             {
@@ -403,21 +411,7 @@ namespace DATN_Web.DataAccesLayer
                             }
                         }
 
-                        // 3) Ghi lịch sử thu hồi (Status=3) với số lượng thu hồi tránh mất lịch sử
-                        const string sqlInsertReturn = @"
-                    INSERT INTO CustomerDevices(CustomerId, ModelId, DeliveryDate, Quantity, Status, ReturnDate)
-                    VALUES (@CustomerId, @ModelId, NULL, @Qty, 3, @ReturnDate)";
-
-                        using (var cmd = new SqlCommand(sqlInsertReturn, conn, tran))
-                        {
-                            cmd.Parameters.AddWithValue("@CustomerId", customerId);
-                            cmd.Parameters.AddWithValue("@ModelId", modelId);
-                            cmd.Parameters.AddWithValue("@Qty", returnQty);
-                            cmd.Parameters.AddWithValue("@ReturnDate", DateTime.Today);
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        // 3) Cập nhật kho: cộng tồn, trừ đang dùng
+                        //Cập nhật kho: cộng tồn, trừ đang dùng
                         const string sqlStock = @"
                     UPDATE DeviceModel
                     SET InStockQuantity = InStockQuantity + @Qty,

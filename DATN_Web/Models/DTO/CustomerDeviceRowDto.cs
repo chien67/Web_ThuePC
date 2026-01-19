@@ -15,6 +15,6 @@ namespace DATN_Web.Models.DTO
         public string Configuration { get; set; }
         public int Quantity { get; set; }
         public CustomerDeviceStatus Status { get; set; }
-        public int DeliveryUserId { get; set; }
+        public int? DeliveryUserId { get; set; }
     }
 }

@@ -84,7 +84,8 @@ namespace DATN_Web.Controllers
                 return View(vm);
             }
         }
-        [WarehouseOnly]
+        
+        [HttpGet]
         public ActionResult Return(int id)
         {
             var vm = _bll.GetReturnFormData(id);

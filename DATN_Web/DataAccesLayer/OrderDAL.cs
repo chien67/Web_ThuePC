@@ -290,7 +290,21 @@ namespace DATN_Web.DataAccesLayer
         {
             List<Order> list = new List<Order>();
 
-            string sql = "SELECT * FROM Orders WHERE Status = 3";
+            string sql = @"SELECT 
+                               o.OrderId,
+                               o.CustomerId,
+                               o.DeliveryDate,
+                               o.RentDays,
+                               o.UnitPrice,
+                               o.Quantity,
+                               o.DepositAmount,
+                               o.Status,
+                               c.CustomerType,
+                               c.CustomerName,
+                               c.RepresentativeName
+                           FROM Orders o
+                           JOIN Customers c ON o.CustomerId = c.CustomerId
+                           WHERE o.Status = 3";
 
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -304,13 +318,17 @@ namespace DATN_Web.DataAccesLayer
                     {
                         OrderId = (int)rd["OrderId"],
                         CustomerId = (int)rd["CustomerId"],
+                        DeliveryDate = rd["DeliveryDate"] == DBNull.Value? (DateTime?)null: Convert.ToDateTime(rd["DeliveryDate"]),
                         RentDays = (int)rd["RentDays"],
                         UnitPrice = (decimal)rd["UnitPrice"],
                         Quantity = (int)rd["Quantity"],
                         DepositAmount = rd["DepositAmount"] == DBNull.Value
                                         ? 0
                                         : (decimal)rd["DepositAmount"],
-                        Status = (OrderStatus)Convert.ToByte(rd["Status"])
+                        Status = (OrderStatus)Convert.ToByte(rd["Status"]),
+                        CustomerType = Convert.ToByte(rd["CustomerType"]),
+                        CustomerName = rd["CustomerName"]?.ToString(),
+                        RepresentativeName = rd["RepresentativeName"]?.ToString()
                     });
                 }
             }

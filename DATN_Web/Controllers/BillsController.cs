@@ -27,17 +27,19 @@ namespace DATN_Web.Controllers
         {
             return View(new Orders3StatusVM
             {
-                Finished = _orderBLL.GetOrdersReadyForPayment()
-        .Select(o => new OrderListRow
-        {
-            OrderId = o.OrderId,
-            DeliveryDate = o.DeliveryDate,
-            DeviceRequirement = o.DeviceRequirement,
-            Quantity = o.Quantity,
-            RentDays = o.RentDays,
-            UnitPrice = o.UnitPrice,
-            DepositAmount = o.DepositAmount
-        }).ToList()
+                Finished = _orderBLL.GetOrdersReadyForPayment().Select(o => new OrderListRow
+                {
+                    OrderId = o.OrderId,
+                    DeliveryDate = o.DeliveryDate,
+                    DeviceRequirement = o.DeviceRequirement,
+                    Quantity = o.Quantity,
+                    RentDays = o.RentDays,
+                    UnitPrice = o.UnitPrice,
+                    DepositAmount = o.DepositAmount,
+                    CustomerType = o.CustomerType,
+                    CustomerName = o.CustomerName,
+                    RepresentativeName = o.RepresentativeName
+                }).ToList()
             });
         }
 

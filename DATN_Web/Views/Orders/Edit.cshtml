@@ -116,10 +116,10 @@
                                 <div class="form-group">
                                     <label>Tình trạng đơn hàng: </label>
                                     <select name="Order.Status" class="form-control">
-                                        <option value="0" @(Model.Order.Status == 0 ? "selected" : "")>Đang chuẩn bị</option>
-                                        <option value="1" @(Model.Order.Status == 1 ? "selected" : "")>Đã giao hàng</option>
-                                        <option value="2" @(Model.Order.Status == 2 ? "selected" : "")>Quá hạn</option>
-                                        <option value="3" @(Model.Order.Status == 3 ? "selected" : "")>Kết thúc đơn</option>
+                                        <option value="0" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Preparing ? "selected" : "")>Đang chuẩn bị</option>
+                                        <option value="1" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Active ? "selected" : "")>Đã giao hàng</option>
+                                        <option value="2" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Overdue ? "selected" : "")>Quá hạn</option>
+                                        <option value="3" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Finished ? "selected" : "")>Kết thúc đơn</option>
                                     </select>
                                 </div>
                             </div>

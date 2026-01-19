@@ -232,7 +232,7 @@
                                         <td class="align-middle">@d.Configuration</td>
                                         <td class="text-center align-middle">@d.Quantity</td>
                                         <td class="text-center align-middle">
-                                            @if (role == 3)
+                                            @if (role == 3 && d.Status == DATN_Web.Models.Enum.CustomerDeviceStatus.ReceivedAndDelivered)
                                             {
                                                 <a class="btn btn-outline-dark btn-sm"
                                                    href="@Url.Action("Return", "CustomerDevices", new { id = d.Id })">
@@ -240,7 +240,7 @@
                                                 </a>
                                             }
 
-                                            @* NHÂN VIÊN ĐƯỢC GIAO (PHÚ) *@
+                                            @* NHÂN VIÊN ĐƯỢC GIAO *@
                                             else if (role == 1
                                                   && currentUserId == d.DeliveryUserId
                                                   && d.Status == DATN_Web.Models.Enum.CustomerDeviceStatus.WaitingReceive)

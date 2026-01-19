@@ -111,9 +111,17 @@ namespace DATN_Web.DataAccesLayer
                 PaidDate = Convert.ToDateTime(reader["PaidDate"]),
                 PaidUserId = Convert.ToInt32(reader["PaidUserId"]),
                 Note = reader["Note"]?.ToString(),
+                CustomerType = reader["CustomerType"] == DBNull.Value? (byte)1: Convert.ToByte(reader["CustomerType"]),
+
+                CustomerName = reader["CustomerName"] == DBNull.Value? string.Empty : reader["CustomerName"].ToString(),
+
+                CompanyName = reader["CompanyName"] == DBNull.Value? null : reader["CompanyName"].ToString(),
+
+                TaxCode = reader["TaxCode"] == DBNull.Value? null : reader["TaxCode"].ToString(),
                 CreatedDate = reader["CreatedDate"] == DBNull.Value
                                 ? DateTime.Now
                                 : Convert.ToDateTime(reader["CreatedDate"])
+
             };
         }
     }

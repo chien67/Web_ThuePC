@@ -1,85 +1,132 @@
 ﻿@model DATN_Web.Models.ViewModels.LoginVM
 @{
     Layout = null;
-    ViewBag.Title = "Đăng nhập";
+    ViewBag.Title = "Đăng nhập hệ thống";
 }
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>@ViewBag.Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- Font Awesome -->
     <link href="@Url.Content("~/Plugins/fontawesome-free/css/all.min.css")" rel="stylesheet" />
-    <!-- icheck bootstrap -->
+    <!-- Bootstrap -->
     <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
-    <!-- Theme style -->
+    <!-- AdminLTE -->
     <link href="@Url.Content("~/Content/css_admin/css/adminlte.min.css")" rel="stylesheet" />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .login-container {
+            min-height: 100vh;
+        }
+
+        .login-left {
+            background: #0d6efd;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-right {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+    </style>
 </head>
 
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b>Đăng Nhập</b></a>
-        </div>
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Đăng nhập để vào hệ thống</p>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row no-gutters">
 
-                @using (Html.BeginForm("Login", "Account", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    @* Lỗi chung *@
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-2" })
-
-                    <div class="input-group mb-3">
-                        @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Tài khoản" })
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-user"></span>
-                            </div>
-                        </div>
-                    </div>
-                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
-
-                    <div class="input-group mb-3">
-                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Mật khẩu" })
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember">
-                                <label for="remember">Remember Me</label>
-                            </div>
-                        </div>
-
-                        <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                        </div>
-                    </div>
-                }
-
-                <p class="text-muted mt-3 mb-0" style="font-size: 13px;">
-                    * Tài khoản do Admin cấp. Không hỗ trợ tự đăng ký.
-                </p>
+            <!-- LEFT: FULL HEIGHT -->
+            <div class="col-md-6 d-none d-md-flex login-left">
+                <div class="p-5">
+                    <i class="fas fa-database fa-4x mb-4"></i>
+                    <h2 class="font-weight-bold">
+                        HỆ THỐNG QUẢN LÝ CHO THUÊ MÁY TÍNH
+                    </h2>
+                    <p class="mt-3">
+                        Ứng dụng web hỗ trợ quản lý, tìm kiếm và cập nhật thông tin đơn hàng,
+                        khách hàng một cách nhanh chóng và hiệu quả.
+                    </p>
+                    <ul class="mt-4">
+                        <li>Quản lý thông tin đơn hàng, khách hàng</li>
+                        <li>Tìm kiếm – cập nhật dữ liệu</li>
+                        <li>Bảo mật và phân quyền người dùng</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- jQuery -->
-    <script src="@Url.Content("~/Plugins/jquery/jquery.min.js")"></script>
-    <!-- Bootstrap 4 -->
-    <script src="@Url.Content("~/Plugins/bootstrap/js/bootstrap.bundle.min.js")"></script>
-    <!-- AdminLTE App -->
-    <script src="@Url.Content("~/Scripts/js/adminlte.min.js")"></script>
+            <!-- RIGHT: FULL HEIGHT -->
+            <div class="col-md-6 login-right">
+                <div class="w-100 d-flex justify-content-center">
+                    <div class="card shadow" style="width: 380px;">
+                        <div class="card-body">
+                            <h4 class="text-center mb-3">
+                                <i class="fas fa-user-lock"></i> Đăng nhập hệ thống
+                            </h4>
+                            <p class="text-center text-muted">
+                                Vui lòng đăng nhập để tiếp tục
+                            </p>
+
+                            @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-2" })
+
+                                <div class="input-group mb-3">
+                                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Tên đăng nhập" })
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <span class="fas fa-user"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="input-group mb-3">
+                                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Mật khẩu" })
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <span class="fas fa-lock"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <div class="icheck-primary mb-0">
+                                            <input type="checkbox" id="remember">
+                                            <label for="remember">Ghi nhớ đăng nhập</label>
+                                        </div>
+                                    </div>
+                                        <button type="submit" class="btn btn-primary btn-block">
+                                            Đăng nhập
+                                        </button>
+                                </div>
+                            }
+
+                            <p class="text-muted mt-3 mb-0" style="font-size:13px;">
+                                * Tài khoản do quản trị viên cấp, không hỗ trợ đăng ký.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- Scripts -->
+
 </body>
+<script src="@Url.Content("~/Plugins/jquery/jquery.min.js")"></script>
+<script src="@Url.Content("~/Plugins/bootstrap/js/bootstrap.bundle.min.js")"></script>
+<script src="@Url.Content("~/Scripts/js/adminlte.min.js")"></script>
 </html>
