@@ -1,6 +1,6 @@
 # Graduation Thesis (Project Thesis) - Hotel Management System
-+ http://localhost:2001/
-+ http://103.226.250.247:6868/
++ http://localhost:2001/ (U/P: admin/123456)
++ http://103.226.250.247:6868/ (U/P: admin/123456)
 
 ## How to publish
 + Stop Website "QL_Laptop"
