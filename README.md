@@ -1,6 +1,14 @@
 # Graduation Thesis (Project Thesis) - Hotel Management System
++ http://localhost:2001/
++ http://103.226.250.247:6868/
 
-### How to publish
+## How to publish
++ Stop Website "QL_Laptop"
++ Clean build ASP.NET MVC 5
++ Publish trực tiếp bằng Visual Studio 2026 Insiders
++ Start Websitee "QL_Laptop"
++ [IISProfile.pubxml](https://github.com/chien67/Web_ThuePC/blob/feature/publish-to-iis/DATN_Web/Properties/PublishProfiles/IISProfile.pubxml)
+
 ```
 Solution name: D:\Chien67\Web_ThuePC\DATN_Web.sln
 
@@ -18,16 +26,15 @@ Database name: QL_Laptop
 
 Website name: QL_Laptop
 
-Visual Studio Insiders 2026: "C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE\devenv.exe"
+Visual Studio 2026 Insiders: "C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE\devenv.exe"
 
-MSBuild 2026: "C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe"
+MSBuild 2026 Insiders: "C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe"
 
 "C:\Windows\System32\inetsrv\appcmd.exe" stop site /site.name:"QL_Laptop"
 
 "C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe" "D:\Chien67\Web_ThuePC\DATN_Web\DATN_Web.csproj" /p:DeployOnBuild=true /p:PublishProfile=IISProfile /p:Configuration=Release
 
 "C:\Windows\System32\inetsrv\appcmd.exe" start site /site.name:"QL_Laptop"
-
 ```
 
 ## Hotel Management System Project Thesis
