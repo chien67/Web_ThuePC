@@ -23,9 +23,26 @@ namespace DATN_Web.Models.DTO
 
         public DateTime CreatedAt { get; set; }
 
-        public string DisplayCustomer =>
-            !string.IsNullOrEmpty(CustomerName)
-                ? CustomerName
-                : RepresentativeName;
+        public string DisplayCustomer
+        {
+            get
+            {
+                // Nội bộ
+                if (string.IsNullOrWhiteSpace(CustomerName) &&
+                    string.IsNullOrWhiteSpace(RepresentativeName))
+                    return "Nội bộ";
+
+                // Khách lẻ / cá nhân (chỉ có tên người)
+                if (string.IsNullOrWhiteSpace(CustomerName))
+                    return RepresentativeName;
+
+                // Khách doanh nghiệp (có người đại diện)
+                if (!string.IsNullOrWhiteSpace(RepresentativeName))
+                    return $"{CustomerName} ({RepresentativeName})";
+
+                // Khách doanh nghiệp (không có người đại diện)
+                return CustomerName;
+            }
+        }
     }
 }

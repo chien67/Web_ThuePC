@@ -55,11 +55,15 @@
                                                         </i>
                                                         Cập nhật
                                                     </a>
-                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers",new { id = item.BrokenLogId })">
-                                                        <i class="fas fa-trash">
-                                                        </i>
-                                                        Xoá
-                                                    </a>
+                                                    @using (Html.BeginForm("Recover", "DeviceBrokenLogs", FormMethod.Post, new { onsubmit = "return confirm('Thu hồi báo hỏng? Thiết bị đã sửa xong và sẽ trừ số lượng hỏng.');" }))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        @Html.Hidden("id", item.BrokenLogId)
+
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            Thu hồi
+                                                        </button>
+                                                    }
                                                 </td>
                                             </tr>
                                         }

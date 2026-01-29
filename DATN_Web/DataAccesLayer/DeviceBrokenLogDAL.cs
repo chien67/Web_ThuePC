@@ -33,6 +33,7 @@ namespace DATN_Web.DataAccesLayer
                                     FROM DeviceBrokenLogs bl
                                     INNER JOIN DeviceModel dm ON bl.ModelId = dm.Id
                                     LEFT JOIN Customers c ON bl.CustomerId = c.CustomerId
+                                    WHERE bl.Status <> 2
                                     ORDER BY bl.CreatedAt DESC";
 
             using (var conn = new SqlConnection(GetConnectionString()))
@@ -68,24 +69,21 @@ namespace DATN_Web.DataAccesLayer
         // Lấy ra 1 thiết bị hỏng
         public DeviceBrokenLogRowDto GetById(int brokenLogId)
         {
-            const string sql = @"
-        SELECT 
-            bl.BrokenLogId,
-            bl.Quantity,
-            bl.BrokenReason,
-            bl.EstimatedCost,
-            bl.CostNote,
-            bl.CreatedAt,
-
-            dm.ModelName,
-            dm.Configuration,
-
-            c.CustomerName,
-            c.RepresentativeName
-        FROM DeviceBrokenLogs bl
-        INNER JOIN DeviceModel dm ON bl.ModelId = dm.Id
-        LEFT JOIN Customers c ON bl.CustomerId = c.CustomerId
-        WHERE bl.BrokenLogId = @Id";
+            const string sql = @"SELECT 
+                                    bl.BrokenLogId,
+                                    bl.Quantity,
+                                    bl.BrokenReason,
+                                    bl.EstimatedCost,
+                                    bl.CostNote,
+                                    bl.CreatedAt,
+                                    dm.ModelName,
+                                    dm.Configuration,
+                                    c.CustomerName,
+                                    c.RepresentativeName
+                                FROM DeviceBrokenLogs bl
+                                INNER JOIN DeviceModel dm ON bl.ModelId = dm.Id
+                                LEFT JOIN Customers c ON bl.CustomerId = c.CustomerId
+                                WHERE bl.BrokenLogId = @Id";
 
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
@@ -127,28 +125,29 @@ namespace DATN_Web.DataAccesLayer
                     try
                     {
                         // Insert log
-                        string sqlInsert = @"
-                        INSERT INTO DeviceBrokenLogs
-                        (ModelId, CustomerId, Quantity, BrokenReason, Status, CreatedBy, CreatedAt)
-                        VALUES
-                        (@ModelId, @CustomerId, @Quantity, @BrokenReason, 0, @CreatedBy, GETDATE())";
+                        string sqlInsert = @"INSERT INTO DeviceBrokenLogs
+                                             (ModelId, CustomerId, Quantity, BrokenReason, Status, CreatedBy, CreatedAt)
+                                             VALUES
+                                             (@ModelId, @CustomerId, @Quantity, @BrokenReason, 0, @CreatedBy, GETDATE())";
 
                         using (var cmd = new SqlCommand(sqlInsert, conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@ModelId", log.ModelId);
                             cmd.Parameters.AddWithValue("@CustomerId", (object)log.CustomerId ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@Quantity", log.Quantity);
-                            cmd.Parameters.AddWithValue("@BrokenReason", log.BrokenReason);
+                            cmd.Parameters.Add("@BrokenReason", System.Data.SqlDbType.NVarChar, 1000).Value =
+                                                string.IsNullOrWhiteSpace(log.BrokenReason) ? (object)DBNull.Value : log.BrokenReason.Trim();
                             cmd.Parameters.AddWithValue("@CreatedBy", log.CreatedBy);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // Update BrokenQuantity
-                        string sqlUpdate = @"
-                        UPDATE DeviceModel
-                        SET BrokenQuantity = BrokenQuantity + @Qty,
-                            LastUpdatedAt = GETDATE()
-                        WHERE Id = @ModelId";
+                        // Trừ tồn kho + tăng số lượng hỏng
+                        string sqlUpdate = @"UPDATE DeviceModel
+                                             SET InStockQuantity = InStockQuantity - @Qty,
+                                                 BrokenQuantity = BrokenQuantity + @Qty,
+                                                 LastUpdatedAt = GETDATE()
+                                             WHERE Id = @ModelId
+                                               AND InStockQuantity >= @Qty";
 
                         using (var cmd = new SqlCommand(sqlUpdate, conn, tran))
                         {
@@ -169,12 +168,11 @@ namespace DATN_Web.DataAccesLayer
         }
         public void UpdateRepairCost(int brokenLogId, decimal cost, string note)
         {
-            string sql = @"
-        UPDATE DeviceBrokenLogs
-        SET EstimatedCost = @Cost,
-            CostNote = @Note,
-            Status = 1
-        WHERE BrokenLogId = @Id";
+            string sql = @"UPDATE DeviceBrokenLogs
+                           SET EstimatedCost = @Cost,
+                               CostNote = @Note,
+                               Status = 1
+                           WHERE BrokenLogId = @Id";
 
             using (var conn = new SqlConnection(GetConnectionString()))
             using (var cmd = new SqlCommand(sql, conn))
@@ -187,5 +185,80 @@ namespace DATN_Web.DataAccesLayer
                 cmd.ExecuteNonQuery();
             }
         }
+        public void Recover(int brokenLogId, int recoveredBy)
+        {
+            using (var conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // 1) Lấy ModelId + Quantity + Status hiện tại
+                        int modelId = 0;
+                        int qty = 0;
+                        int status = -1;
+
+                        string sqlGet = @"SELECT ModelId, Quantity, Status
+                                          FROM DeviceBrokenLogs
+                                          WHERE BrokenLogId = @Id";
+
+                        using (var cmd = new SqlCommand(sqlGet, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", brokenLogId);
+                            using (var rd = cmd.ExecuteReader())
+                            {
+                                if (!rd.Read())
+                                    throw new Exception("Không tìm thấy phiếu báo hỏng.");
+
+                                modelId = Convert.ToInt32(rd["ModelId"]);
+                                qty = Convert.ToInt32(rd["Quantity"]);
+                                status = Convert.ToInt32(rd["Status"]);
+                            }
+                        }
+
+                        // Chặn thu hồi 2 lần
+                        if (status == 2)
+                            throw new Exception("Phiếu này đã thu hồi rồi.");
+
+                        // 2) Update status log -> 2 (Recovered)
+                        string sqlUpdateLog = @"UPDATE DeviceBrokenLogs
+                                                SET Status = 2
+                                                    -- nếu có cột: RecoveredBy = @RecoveredBy, RecoveredAt = GETDATE()
+                                                WHERE BrokenLogId = @Id";
+
+                        using (var cmd = new SqlCommand(sqlUpdateLog, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", brokenLogId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // 3) Trừ BrokenQuantity (không cho âm)
+                        string sqlUpdateModel = @"UPDATE DeviceModel
+                                                  SET BrokenQuantity = CASE 
+                                                                          WHEN BrokenQuantity - @Qty < 0 THEN 0
+                                                                          ELSE BrokenQuantity - @Qty
+                                                                       END,
+                                                      LastUpdatedAt = GETDATE()
+                                                  WHERE Id = @ModelId";
+
+                        using (var cmd = new SqlCommand(sqlUpdateModel, conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Qty", qty);
+                            cmd.Parameters.AddWithValue("@ModelId", modelId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        tran.Commit();
+                    }
+                    catch
+                    {
+                        tran.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
     }
 }

@@ -26,18 +26,8 @@ namespace DATN_Web.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            ViewBag.Models = new SelectList(
-                _bll.GetAllModels(),
-                "Id",
-                "ModelName"
-            );
-
-            ViewBag.Customers = new SelectList(
-                _bll.GetAllCustomers(),
-                "CustomerId",
-                "CustomerName"
-            );
-
+            ViewBag.Models = new SelectList(_bll.GetAllModels(),"Id","ModelName");
+            ViewBag.Customers = BuildCustomerSelectList();
             return View(new CreateBrokenDeviceVM());
         }
 
@@ -45,19 +35,40 @@ namespace DATN_Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(CreateBrokenDeviceVM vm)
         {
-            if (!ModelState.IsValid)
+            vm.BrokenReason = vm.BrokenReason?.Trim();
+
+            if (string.IsNullOrWhiteSpace(vm.BrokenReason))
             {
-                ViewBag.Models = new SelectList(_bll.GetAll(), "Id", "ModelName");
-                ViewBag.Customers = new SelectList(_bll.GetAll(), "CustomerId", "CustomerName");
-                return View(vm);
+                TempData["ToastError"] = "Vui lòng nhập lý do hỏng thiết bị";
+                return RedirectToAction("Create");
             }
 
-            int userId = Convert.ToInt32(Session["UserId"]);
+            // nạp dropdown (để view không lỗi nếu quay lại)
+            ViewBag.Models = new SelectList(_bll.GetAllModels(), "Id", "ModelName", vm.ModelId);
+            ViewBag.Customers = new SelectList(_bll.GetAllCustomers(), "CustomerId", "CustomerName", vm.CustomerId);
 
-            _bll.Create(vm, userId);
+            if (!ModelState.IsValid)
+                return View(vm);
 
-            TempData["Success"] = "Đã báo hỏng thiết bị";
-            return RedirectToAction("Index");
+            if (Session["UserId"] == null)
+            {
+                TempData["ToastError"] = "Phiên đăng nhập đã hết hạn";
+                return RedirectToAction("Create");
+            }
+
+            try
+            {
+                int userId = Convert.ToInt32(Session["UserId"]);
+                _bll.Create(vm, userId);
+
+                TempData["ToastSuccess"] = "Đã báo hỏng thiết bị";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastError"] = "Lỗi khi lưu: " + ex.Message;
+                return RedirectToAction("Create");
+            }
         }
         [HttpGet]
         public ActionResult UpdateCost(int id)
@@ -92,7 +103,7 @@ namespace DATN_Web.Controllers
             {
                 _bll.UpdateRepairCost(vm);
 
-                TempData["Success"] = "Đã cập nhật giá sửa";
+                TempData["ToastSuccess"] = "Đã cập nhật giá sửa";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -101,5 +112,47 @@ namespace DATN_Web.Controllers
                 return View(vm);
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Recover(int id)
+        {
+            if (Session["UserId"] == null)
+            {
+                TempData["ToastError"] = "Phiên đăng nhập đã hết hạn";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                int userId = Convert.ToInt32(Session["UserId"]);
+                _bll.Recover(id, userId);
+
+                TempData["ToastSuccess"] = "Đã thu hồi báo hỏng (đã sửa xong)";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastError"] = "Thu hồi thất bại: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+        private SelectList BuildCustomerSelectList(int? selectedId = null)
+        {
+            var customers = _bll.GetAllCustomers()
+                .Select(c => new
+                {
+                    c.CustomerId,
+                    DisplayName =
+                        c.CustomerType == 1
+                            ? c.RepresentativeName
+                            : (!string.IsNullOrWhiteSpace(c.RepresentativeName)
+                                ? $"{c.CustomerName} ({c.RepresentativeName})"
+                                : c.CustomerName)
+                })
+                .ToList();
+
+            return new SelectList(customers, "CustomerId", "DisplayName", selectedId);
+        }
+
     }
 }

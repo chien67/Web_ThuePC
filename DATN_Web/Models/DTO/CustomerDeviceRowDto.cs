@@ -8,7 +8,7 @@ namespace DATN_Web.Models.DTO
 {
     public class CustomerDeviceRowDto
     {
-        public int Id { get; set; }               // CustomerDevices.Id
+        public int Id { get; set; }               
         public DateTime? DeliveryDate { get; set; }
         public string CategoryName { get; set; }
         public string ModelName { get; set; }

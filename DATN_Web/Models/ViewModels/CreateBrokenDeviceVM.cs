@@ -17,7 +17,6 @@ namespace DATN_Web.Models.ViewModels
         [Range(1, 1000)]
         public int Quantity { get; set; }
 
-        [Required]
         public string BrokenReason { get; set; }
     }
 }

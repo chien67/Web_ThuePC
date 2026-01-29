@@ -62,5 +62,10 @@ namespace DATN_Web.BusinessLayer
 
             return _deviceBrokenLogDal.GetById(brokenLogId);
         }
+        public void Recover(int brokenLogId, int userId)
+        {
+            if (brokenLogId <= 0) throw new Exception("Id không hợp lệ");
+            _deviceBrokenLogDal.Recover(brokenLogId, userId);
+        }
     }
 }
