@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -10,6 +11,7 @@ namespace DATN_Web.Models
         public int CustomerId { get; set; }
         public Byte CustomerType { get; set; }
         public string CustomerName { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập người đại điện/khách hàng")]
         public string RepresentativeName { get; set; }
         public string TaxCode { get; set; }
         public string Address { get; set; }

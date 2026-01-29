@@ -1,4 +1,5 @@
-﻿@{
+﻿@model DATN_Web.Models.DeviceCategory
+@{
     ViewBag.Title = "Tạo mới danh mục";
 }
 
@@ -7,25 +8,35 @@
         <div class="col-lg-10 col-xl-9">
             <div class="card">
                 <div class="card-header bg-success">
-                    <h3 class="card-title ">@ViewBag.Title</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="card-body">
-                            <div class="input-group">
-                                <input type="text" id="categoryNameInput" name="CategoryName" class="form-control" placeholder="Vui lòng nhập tên danh mục">
-                                <button type="button" id="submitCategoryBtn" class="btn btn-primary">Submit</button>
-                                <div id="messageArea" class="mt-2"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <h3 class="card-title">@ViewBag.Title</h3>
                 </div>
 
+                <div class="card-body">
+                    @using (Html.BeginForm("CreateDeviceCategory", "Warehouse", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-2" })
+
+                        <div class="input-group">
+                            @Html.TextBoxFor(m => m.CategoryName, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Vui lòng nhập tên danh mục"
+                            })
+
+                            <button type="submit" class="btn btn-primary">
+                                Submit
+                            </button>
+                        </div>
+
+                        @Html.ValidationMessageFor(m => m.CategoryName, "", new { @class = "text-danger mt-2 d-block" })
+                    }
+                </div>
             </div>
+
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Danh mục có sẵn</h3>
-
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -49,69 +60,3 @@
         </div>
     </div>
 </section>
-
-<script>
-    document.getElementById('submitCategoryBtn').addEventListener('click', function () {
-        // 1. Thu thập dữ liệu
-        const categoryNameInput = document.getElementById('categoryNameInput');
-        const categoryName = categoryNameInput.value.trim(); // Lấy giá trị và loại bỏ khoảng trắng dư thừa
-        const messageArea = document.getElementById('messageArea');
-
-        // Xóa thông báo cũ
-        messageArea.innerHTML = '';
-        messageArea.className = 'mt-2';
-
-        // Kiểm tra dữ liệu hợp lệ (client-side validation)
-        if (categoryName === "") {
-            messageArea.innerHTML = '<span class="text-danger">Vui lòng nhập tên danh mục.</span>';
-            categoryNameInput.focus();
-            return; // Dừng hàm nếu không hợp lệ
-        }
-
-        // 2. Chuẩn bị dữ liệu gửi đi (Đảm bảo tên thuộc tính CategoryName khớp với Model C# của bạn)
-        const dataToSend = {
-            CategoryName: categoryName
-            // Lưu ý: Các trường mặc định khác như ModelCount, TotalQuanity, LastUpdate
-            // nên được xử lý ở phía Server (BLL/DAL)
-        };
-
-        // 3. Thực hiện yêu cầu AJAX (Fetch API)
-        // Thay thế /DeviceCategory/Create bằng URL Controller/Action chính xác của bạn
-        const url = '@Url.Action("CreateDeviceCategory", "Warehouse")';
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                // Chúng ta gửi dữ liệu dưới dạng JSON
-                'Content-Type': 'application/json'
-                // LƯU Ý: Nếu bạn dùng AntiforgeryToken (khuyến nghị), bạn phải thêm token vào headers
-            },
-            body: JSON.stringify(dataToSend) // Chuyển đối tượng JS thành chuỗi JSON
-        })
-            .then(response => {
-                // Kiểm tra mã trạng thái HTTP (ví dụ: 200 OK, 400 Bad Request)
-                if (!response.ok) {
-                    // Ném lỗi để chuyển sang khối .catch
-                    throw new Error('Lỗi máy chủ HTTP: ' + response.status);
-                }
-                // Giả sử Controller C# của bạn trả về JSON (ví dụ: { success: true, message: "" })
-                return response.json();
-            })
-            .then(result => {
-                // 4. Xử lý phản hồi từ Server
-                if (result.success) {
-                    messageArea.innerHTML = '<span class="text-success">✅ Thêm danh mục thành công!</span>';
-                    categoryNameInput.value = ''; // Xóa ô input sau khi thành công
-                } else {
-                    // Lỗi nghiệp vụ (ví dụ: tên danh mục đã tồn tại)
-                    messageArea.innerHTML = '<span class="text-danger">❌ Lỗi: ' + (result.message || 'Lỗi trùng tên danh mục.') + '</span>';
-                }
-            })
-            .catch(error => {
-                // 5. Xử lý lỗi hệ thống (mất mạng, lỗi Server 500...)
-                console.error('Lỗi AJAX:', error);
-                messageArea.innerHTML = '<span class="text-danger">❌ Lỗi hệ thống: Không thể kết nối đến máy chủ.</span>';
-            });
-    });
-
-</script>

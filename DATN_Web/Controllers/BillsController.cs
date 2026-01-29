@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
+using DATN_Web.BusinessLogicLayer;
 using DATN_Web.Filters;
 using DATN_Web.Models.Entities;
 using DATN_Web.Models.Enum;
@@ -38,7 +39,8 @@ namespace DATN_Web.Controllers
                     DepositAmount = o.DepositAmount,
                     CustomerType = o.CustomerType,
                     CustomerName = o.CustomerName,
-                    RepresentativeName = o.RepresentativeName
+                    RepresentativeName = o.RepresentativeName,
+                    IsPaid = _billBLL.IsPaidByOrderId(o.OrderId)
                 }).ToList()
             });
         }
@@ -81,8 +83,23 @@ namespace DATN_Web.Controllers
         {
             try
             {
+                if (bill == null || bill.OrderId <= 0)
+                {
+                    TempData["Error"] = "Dữ liệu không hợp lệ.";
+                    return RedirectToAction("Index");
+                }
+
+                // ✅ chặn thanh toán lại (vì danh sách đang lấy từ Orders nên có thể bấm lại)
+                var existed = _billBLL.GetByOrderId(bill.OrderId); // cần thêm hàm này trong BLL (bên dưới)
+                if (existed != null && existed.Status == true)
+                {
+                    TempData["Error"] = "Đơn hàng này đã được thanh toán rồi.";
+                    return RedirectToAction("Index");
+                }
+
                 bill.PaidDate = DateTime.Now;
                 bill.PaidUserId = Convert.ToInt32(Session["UserId"]);
+                bill.Status = true; // ✅ đã thanh toán
 
                 _billBLL.PayOrder(bill);
 
@@ -92,7 +109,7 @@ namespace DATN_Web.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                return View(bill);
+                return RedirectToAction("Pay", new { orderId = bill?.OrderId ?? 0 });
             }
         }
     }

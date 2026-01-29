@@ -16,20 +16,22 @@ namespace DATN_Web.Models.ViewModels
         public decimal UnitPrice { get; set; }
         public byte Status { get; set; }
         public decimal DepositAmount { get; set; }
+        public bool IsPaid { get; set; }
 
-        // 🔹 Dữ liệu thô (từ SQL / BLL)
+        //  Dữ liệu thô (từ SQL / BLL)
         public byte CustomerType { get; set; }          // 1 = Cá nhân, 2 = Doanh nghiệp
-        public string CustomerName { get; set; }        // Cá nhân: tên | DN: tên công ty
-        public string RepresentativeName { get; set; } // DN: người đại diện
-        // Tên hiển thị trên UI
+        public string CustomerName { get; set; }        // DN: tên công ty (Cá nhân thường null)
+        public string RepresentativeName { get; set; } // Cá nhân: họ tên | DN: người đại diện
         public string DisplayCustomerName
         {
             get
             {
-                if (CustomerType == 1) // Cá nhân
-                    return CustomerName;
+                // Cá nhân: hiển thị họ tên (RepresentativeName)
+                if (CustomerType == 1)
+                    return RepresentativeName;
 
-                if (CustomerType == 2) // Doanh nghiệp
+                // Doanh nghiệp: hiển thị "Tên công ty (Người đại diện)" nếu có
+                if (CustomerType == 2)
                 {
                     if (!string.IsNullOrWhiteSpace(RepresentativeName))
                         return $"{CustomerName} ({RepresentativeName})";
@@ -37,7 +39,8 @@ namespace DATN_Web.Models.ViewModels
                     return CustomerName;
                 }
 
-                return CustomerName;
+                // fallback
+                return !string.IsNullOrWhiteSpace(CustomerName) ? CustomerName : RepresentativeName;
             }
         }
 

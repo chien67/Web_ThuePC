@@ -12,10 +12,12 @@ namespace DATN_Web.BusinessLayer
     public class CustomerBLL
     {
         private readonly CustomerDAL _customerDAL;
+        private readonly OrderDAL _orderDAL;
 
-        public CustomerBLL(CustomerDAL customerDal)
+        public CustomerBLL(CustomerDAL customerDal, OrderDAL orderDal)
         {
             _customerDAL = customerDal;
+            _orderDAL = orderDal;
         }
 
         public List<Customer> GetListCustomer()
@@ -44,7 +46,12 @@ namespace DATN_Web.BusinessLayer
         public bool DeleteCustomer(int customerId)
         {
             if (customerId <= 0) return false;
-            var order = _customerDAL.DeleteCustomer(customerId);
+
+            // ❌ đã có đơn -> không xoá
+            if (_customerDAL.HasOrdersByCustomerId(customerId))
+                return false;
+
+            // ✅ chưa có đơn -> xoá
             return _customerDAL.DeleteCustomer(customerId);
         }
     }

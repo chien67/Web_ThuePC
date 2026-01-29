@@ -99,5 +99,69 @@ namespace DATN_Web.DataAccesLayer
 
             return list;
         }
+        public User GetById(int userId)
+        {
+            const string sql = @"SELECT UserId, Username, FullName, Email, Role, IsActive
+                                FROM Users
+                                WHERE UserId = @UserId";
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                conn.Open();
+
+                using (var rd = cmd.ExecuteReader())
+                {
+                    if (!rd.Read()) return null;
+
+                    return new User
+                    {
+                        UserId = Convert.ToInt32(rd["UserId"]),
+                        Username = rd["Username"].ToString(),
+                        FullName = rd["FullName"] == DBNull.Value ? null : rd["FullName"].ToString(),
+                        Email = rd["Email"] == DBNull.Value ? null : rd["Email"].ToString(),
+                        Role = Convert.ToByte(rd["Role"]),
+                        IsActive = Convert.ToBoolean(rd["IsActive"])
+                    };
+                }
+            }
+        }
+
+        public int UpdateUserInfo(User u)
+        {
+            const string sql = @"UPDATE Users
+                                SET FullName=@FullName,
+                                    Email=@Email,
+                                    Role=@Role,
+                                    IsActive=@IsActive
+                                WHERE UserId=@UserId";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = u.UserId;
+                cmd.Parameters.Add("@FullName", SqlDbType.NVarChar, 100)
+                   .Value = (object)u.FullName ?? DBNull.Value;
+                cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100)
+                   .Value = (object)u.Email ?? DBNull.Value;
+                cmd.Parameters.Add("@Role", SqlDbType.TinyInt).Value = u.Role;
+                cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = u.IsActive;
+
+                conn.Open();
+                return cmd.ExecuteNonQuery();
+            }
+        }
+        public int DeleteById(int userId)
+        {
+            const string sql = "DELETE FROM Users WHERE UserId = @UserId";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                conn.Open();
+                return cmd.ExecuteNonQuery(); // số dòng bị xoá
+            }
+        }
     }
 }

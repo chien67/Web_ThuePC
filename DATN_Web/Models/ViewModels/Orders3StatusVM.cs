@@ -10,6 +10,6 @@ namespace DATN_Web.Models.ViewModels
     {
         public List<OrderListRow> Preparing { get; set; } = new List<OrderListRow>();
         public List<OrderListRow> Active { get; set; } = new List<OrderListRow>();
-        public List<OrderListRow> Finished { get; set; } = new List<OrderListRow>();
+        public List<OrderListRow> Finished { get; set; } = new List<OrderListRow>(); 
     }
 }

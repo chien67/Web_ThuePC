@@ -30,19 +30,28 @@ namespace DATN_Web.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateCustomers(Customer createCus)
         {
-            if (ModelState.IsValid)
+            if (createCus.CustomerType == 2 && string.IsNullOrWhiteSpace(createCus.CustomerName))
             {
-                bool result = _customerBll.CreateCustomers(createCus);
-                if (result)
-                {
-                    TempData["msg"] = "Thêm mới khách hàng thành công";
-                    return RedirectToAction("Index");
-                }
-                TempData["msg"] = "Lỗi: Thêm khách hàng thất bại";
-
+                ModelState.AddModelError("CustomerName", "Vui lòng nhập tên doanh nghiệp");
             }
+            if (createCus.CustomerType == 1)
+            {
+                createCus.CustomerName = null;
+            }
+            if (!ModelState.IsValid)
+                return View(createCus);
+
+            bool result = _customerBll.CreateCustomers(createCus);
+            if (result)
+            {
+                TempData["ToastSuccess"] = "Thêm mới khách hàng thành công";
+                return RedirectToAction("Index");
+            }
+
+            ModelState.AddModelError("", "Lỗi: Thêm khách hàng thất bại");
             return View(createCus);
         }
         [HttpGet]
@@ -65,7 +74,13 @@ namespace DATN_Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteCustomers(int id)
         {
-            _customerBll.DeleteCustomer(id);
+            bool ok = _customerBll.DeleteCustomer(id);
+
+            if (ok)
+                TempData["ToastSuccess"] = "Xoá khách hàng thành công";
+            else
+                TempData["ToastError"] = "Không thể xoá khách hàng vì đã có đơn hàng";
+
             return RedirectToAction("Index");
         }
 

@@ -11,42 +11,39 @@ namespace DATN_Web.Controllers
 {
     public class WarehouseController : Controller
     {
-        DeviceCategoryBLL bll = new DeviceCategoryBLL();
+        DeviceCategoryBLL _bll = new DeviceCategoryBLL();
         private readonly DeviceCategoryDAL _dal = new DeviceCategoryDAL();
         // GET: Warehouse
         public ActionResult Index()
         {
-            var data = bll.GetAllWithStats();
+            var data = _bll.GetAllWithStats();
             return View(data);
         }
         [HttpGet]
         public ActionResult CreateDeviceCategory()
         {
-            return View();
+            return View(new DeviceCategory());
         }
         [HttpPost]
-        public bool CreateDeviceCategory(DeviceCategory category)
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateDeviceCategory(DeviceCategory model)
         {
-            // 1. Kiểm tra nghiệp vụ cơ bản (client-side)
-            if (string.IsNullOrWhiteSpace(category.CategoryName))
+            if (string.IsNullOrWhiteSpace(model.CategoryName))
             {
-                return false;
+                ModelState.AddModelError("CategoryName", "Vui lòng nhập tên danh mục");
+                return View(model);
             }
 
-            // 2. Gọi DAL để kiểm tra sự tồn tại trong DB (nghiệp vụ DB)
-            if (_dal.IsCategoryNameExist(category.CategoryName))
+            bool ok = _bll.CreateDeviceCategory(model);
+
+            if (ok)
             {
-                // Trả về false nếu trùng tên
-                return false;
+                TempData["ToastSuccess"] = "Thêm danh mục thành công";
+                return RedirectToAction("Index"); // hoặc action list danh mục của bạn
             }
 
-            // 3. Chuẩn bị dữ liệu (Gán các giá trị mặc định/hệ thống)
-            category.LastUpdated = DateTime.Now;
-            category.ModelCount = 0;
-            category.TotalQuantity = 0;
-
-            // 4. Gọi DAL để thực hiện thao tác lưu DB
-            return _dal.CreateDeviceCategory(category);
+            ModelState.AddModelError("CategoryName", "Tên danh mục đã tồn tại");
+            return View(model);
         }
         public ActionResult DeleteDeviceCategory()
         {

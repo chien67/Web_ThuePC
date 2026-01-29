@@ -1,5 +1,4 @@
-﻿
-@model IEnumerable<DATN_Web.Models.Entities.User>
+﻿@model IEnumerable<DATN_Web.Models.Entities.User>
 @{ ViewBag.Title = "Danh sách người dùng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -39,29 +38,24 @@
                                                 <td>@u.Username</td>
                                                 <td>@u.FullName</td>
                                                 <td>@u.Email</td>
-                                                <td>@(u.Role == 1 ? "Admin" : (u.Role == 3 ? "Quản lý kho" : "User"))</td>
+                                                <td>@(u.Role == 1 ? "User" : (u.Role == 3 ? "Quản lý kho" : "Admin"))</td>
                                                 <td>@(u.IsActive ? "Hoạt động" : "Khóa")</td>
                                                 <td>
-                                                    <a class="btn btn-primary btn-sm" href="@Url.Action("DetailCustomers","Customers", new { id = u.UserId })">
-                                                        <i class="fas fa-folder">
-                                                        </i>
-                                                        Xem
+                                                    <a class="btn btn-info btn-sm" href="@Url.Action("Edit","Account", new { id = u.UserId })">
+                                                        <i class="fas fa-pencil-alt"></i> Sửa
                                                     </a>
-                                                    <a class="btn btn-info btn-sm" href="@Url.Action("EditCustomers","Customers", new { id = u.UserId })">
-                                                        <i class="fas fa-pencil-alt">
-                                                        </i>
-                                                        Sửa
-                                                    </a>
-                                                    <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteCustomers","Customers")">
-                                                        <i class="fas fa-trash">
-                                                        </i>
-                                                        Xoá
-                                                    </a>
+                                                    @using (Html.BeginForm("Delete", "Account", new { id = u.UserId }, FormMethod.Post, new { onsubmit = "return confirm('Xoá tài khoản này?');", style = "display:inline-block" }))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="fas fa-trash"></i> Xoá
+                                                        </button>
+                                                    }
                                                 </td>
                                             </tr>
                                             stt++;
                                         }
-                                     </tbody>
+                                    </tbody>
                                 </table>
                             </div>
                             <!-- /.card-body -->

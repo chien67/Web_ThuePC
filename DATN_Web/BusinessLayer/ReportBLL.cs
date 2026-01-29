@@ -9,30 +9,28 @@ namespace DATN_Web.BusinessLayer
 {
     public class ReportBLL
     {
-        private readonly ReportDAL _dal = new ReportDAL();
+        private readonly ReportDAL _dal;
 
-        public DashboardChartVM GetDashboardChart(int year)
+        public ReportBLL()
         {
-            var revenue = _dal.GetRevenueByMonth(year);
-            var customers = _dal.GetNewCustomersByMonth(year);
+            _dal = new ReportDAL();
+        }
 
-            var labels = new List<string>();
-            var revenueData = new List<decimal>();
-            var customerData = new List<int>();
+        public ReportFilterVM GetReport(DateTime? fromDate, DateTime? toDate)
+        {
+            if (!fromDate.HasValue || !toDate.HasValue)
+                throw new Exception("Vui lòng chọn đủ 2 mốc thời gian.");
 
-            for (int m = 1; m <= 12; m++)
-            {
-                labels.Add($"Tháng {m}");
-                revenueData.Add(revenue.ContainsKey(m) ? revenue[m] : 0);
-                customerData.Add(customers.ContainsKey(m) ? customers[m] : 0);
-            }
+            DateTime from = fromDate.Value.Date;
+            DateTime to = toDate.Value.Date.AddDays(1).AddTicks(-1); // inclusive cuối ngày
 
-            return new DashboardChartVM
-            {
-                Labels = labels,
-                RevenueData = revenueData,
-                CustomerData = customerData
-            };
+            if (from > to)
+                throw new Exception("Từ ngày không được lớn hơn Đến ngày.");
+
+            var data = _dal.GetRevenueAndNewCustomers(from, to);
+            data.FromDate = fromDate;
+            data.ToDate = toDate;
+            return data;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace DATN_Web.Models.ViewModels
         [Required(ErrorMessage = "Nhập lại mật khẩu")]
         [Compare("Password", ErrorMessage = "Mật khẩu nhập lại không khớp")]
         public string ConfirmPassword { get; set; }
-
+        [Required(ErrorMessage = "Nhập tên người dùng")]
         public string FullName { get; set; }
 
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]

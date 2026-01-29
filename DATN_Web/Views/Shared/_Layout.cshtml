@@ -80,7 +80,8 @@
                 <!-- Sidebar user (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Chào bạn,
+                        <a href="#" class="d-block">
+                            Chào bạn,
                             @(Session["FullName"]?.ToString() ?? User.Identity.Name)
                         </a>
                     </div>
@@ -201,12 +202,10 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-edit"></i>
-                                <p>
-                                    Danh sách công việc
-                                </p>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Index","DailyTasks")" class="nav-link">
+                                <i class="nav-icon fas fa-tasks"></i>
+                                <p>Danh sách công việc</p>
                             </a>
                         </li>
                         <li class="nav-item has-treeview">
@@ -279,7 +278,6 @@
             bsCustomFileInput.init();
         });
     </script>
-    <>
     <script>
         $(function () {
             //Initialize Select2 Elements
@@ -334,7 +332,7 @@
     </script>
     <!-- jquery-validation -->
     <script src="@Url.Content("~/Plugins/jquery-validation/jquery.validate.min.js")"></script>
-    <script src="@Url.Content("~/lugins/jquery-validation/additional-methods.min.js")"></script>
+    <script src="@Url.Content("~/Plugins/jquery-validation/additional-methods.min.js")"></script>
     <!---->>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -382,6 +380,35 @@
             });
         });
     </script>
+    @if (TempData["ToastSuccess"] != null)
+    {
+        <script>
+        $(function () {
+            $(document).Toasts('create', {
+                class: 'bg-success',
+                title: 'Thành công',
+                body: '@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["ToastSuccess"].ToString()))',
+                autohide: true,
+                delay: 3000
+            });
+        });
+        </script>
+    }
+
+    @if (TempData["ToastError"] != null)
+    {
+        <script>
+        $(function () {
+            $(document).Toasts('create', {
+                class: 'bg-danger',
+                title: 'Lỗi',
+                body: '@Html.Raw(HttpUtility.JavaScriptStringEncode(TempData["ToastError"].ToString()))',
+                autohide: true,
+                delay: 3500
+            });
+        });
+        </script>
+    }
     @RenderSection("Scripts", required: false)
 </body>
 

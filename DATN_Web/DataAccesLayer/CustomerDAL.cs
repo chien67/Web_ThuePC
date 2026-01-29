@@ -168,5 +168,17 @@ namespace DATN_Web.DataAccesLayer
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+        public bool HasOrdersByCustomerId(int customerId)
+        {
+            const string sql = "SELECT COUNT(1) FROM Orders WHERE CustomerId = @CustomerId";
+
+            using (var conn = new SqlConnection(GetConnectionString()))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@CustomerId", customerId);
+                conn.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
     }
 }

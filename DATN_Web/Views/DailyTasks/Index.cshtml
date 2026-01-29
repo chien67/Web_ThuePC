@@ -1,0 +1,157 @@
+﻿@model List<DATN_Web.Models.ViewModels.DailyTaskRow>
+
+@{
+    ViewBag.Title = "Danh sách công việc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var selectedDate = ViewBag.Date as DateTime? ?? DateTime.Today;
+}
+
+<section class="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="container-fluid">
+
+                <!-- FILTER NGÀY -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-tasks mr-1"></i>
+                            Công việc theo ngày
+                        </h3>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="get" action="@Url.Action("Index","DailyTasks")">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Ngày</label>
+                                    <input type="date"
+                                           name="date"
+                                           class="form-control"
+                                           value="@selectedDate.ToString("yyyy-MM-dd")" />
+                                </div>
+
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-filter"></i> Lọc
+                                    </button>
+                                </div>
+
+                                <!-- Quick buttons -->
+                                <div class="col-md-7 d-flex align-items-end">
+                                    <a class="btn btn-outline-secondary mr-2"
+                                       href="@Url.Action("Index","DailyTasks", new { date = DateTime.Today.ToString("yyyy-MM-dd") })">
+                                        Hôm nay
+                                    </a>
+                                    <a class="btn btn-outline-secondary mr-2"
+                                       href="@Url.Action("Index","DailyTasks", new { date = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd") })">
+                                        Ngày mai
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- DANH SÁCH CÔNG VIỆC -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <table class="table table-bordered table-hover mb-0">
+                            <thead class="text-center">
+                                <tr>
+                                    <th style="width:120px">Loại</th>
+                                    <th>Nội dung</th>
+                                    <th style="width:100px">Ưu tiên</th>
+                                    <th style="width:120px">Trạng thái</th>
+                                    <th style="width:120px">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var t in Model)
+                                    {
+                                        <tr>
+                                            <!-- LOẠI -->
+                                            <td class="text-center align-middle">
+                                                @if (t.Source == "AUTO")
+                                                {
+                                                    <span class="badge bg-info">Tự động</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Thủ công</span>
+                                                }
+                                            </td>
+
+                                            <!-- NỘI DUNG -->
+                                            <td class="align-middle">
+                                                <div class="fw-bold">@t.Title</div>
+                                                @if (!string.IsNullOrWhiteSpace(t.Description))
+                                                {
+                                                    <div class="text-muted">@t.Description</div>
+                                                }
+                                            </td>
+                                            <!-- ƯU TIÊN -->
+                                            <td class="text-center align-middle">
+                                                @if (t.Priority == 1)
+                                                {
+                                                    <span class="badge bg-danger">Cao</span>
+                                                }
+                                                else if (t.Priority == 2)
+                                                {
+                                                    <span class="badge bg-warning">Vừa</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">Thấp</span>
+                                                }
+                                            </td>
+
+                                            <!-- TRẠNG THÁI -->
+                                            <td class="text-center align-middle">
+                                                @if (t.Source == "MANUAL")
+                                                {
+                                                    if (t.IsDone)
+                                                    {
+                                                        <span class="badge bg-success">Hoàn thành</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning">Chưa xong</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </td>
+
+                                            <!-- ACTION -->
+                                            <td class="text-center align-middle">
+                                                @if (!string.IsNullOrEmpty(t.Link))
+                                                {
+                                                    <a href="@t.Link" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            Không có công việc trong ngày
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

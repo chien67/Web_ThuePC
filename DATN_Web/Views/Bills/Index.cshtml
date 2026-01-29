@@ -54,18 +54,18 @@
                                                 | @o.RentDays Ngày
                                                 | @String.Format("{0:N0}", o.UnitPrice) VNĐ |
                                             </div>
-                                            <div>
-                                                <a href="@Url.Action("Detail","Orders", new { id = o.OrderId })">
-                                                    ► Chi tiết
-                                                </a>
-                                            </div>
                                         </td>
 
                                         <!-- Tình trạng -->
                                         <td class="text-center align-middle">
-                                            <span class="badge bg-success">
-                                                Đã trả máy
-                                            </span>
+                                            @if (o.IsPaid)
+                                            {
+                                                <span class="badge bg-success">Đã thanh toán</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Chưa thanh toán</span>
+                                            }
                                         </td>
 
                                         <!-- Số ngày -->
@@ -80,10 +80,17 @@
 
                                         <!-- Action -->
                                         <td class="text-center align-middle">
-                                            <a class="btn btn-success btn-sm"
-                                               href="@Url.Action("Pay", "Bills", new { orderId = o.OrderId })">
-                                                Thanh toán
-                                            </a>
+                                            @if (o.IsPaid)
+                                            {
+                                                <button class="btn btn-secondary btn-sm" disabled>Đã thanh toán</button>
+                                            }
+                                            else
+                                            {
+                                                <a class="btn btn-success btn-sm"
+                                                   href="@Url.Action("Pay", "Bills", new { orderId = o.OrderId })">
+                                                    Thanh toán
+                                                </a>
+                                            }
                                         </td>
                                     </tr>
                                 }

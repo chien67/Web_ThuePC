@@ -2,7 +2,12 @@
 @{ ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@using DATN_Web.Models.Enum
+@{
+    OrderStatus status = Model.Order.Status;
+    bool disableFinish = status == OrderStatus.Preparing;
+    bool disableCancel = status == OrderStatus.Active;
+}
 <section class="content">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-9">
@@ -90,9 +95,6 @@
                                         <input type="date" class="form-control"
                                                name="Order.DeliveryDate"
                                                value="@(Model.Order.DeliveryDate?.ToString("yyyy-MM-dd"))" />
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -104,26 +106,11 @@
                                         <input type="date" class="form-control"
                                                name="Order.ReturnDate"
                                                value="@(Model.Order.ReturnDate?.ToString("yyyy-MM-dd"))" />
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Tình trạng đơn hàng: </label>
-                                    <select name="Order.Status" class="form-control">
-                                        <option value="0" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Preparing ? "selected" : "")>Đang chuẩn bị</option>
-                                        <option value="1" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Active ? "selected" : "")>Đã giao hàng</option>
-                                        <option value="2" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Overdue ? "selected" : "")>Quá hạn</option>
-                                        <option value="3" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Finished ? "selected" : "")>Kết thúc đơn</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+
                         <!-- Bảng thiết bị -->
                         <div class="table-responsive mt-2">
                             <table class="table table-bordered table-hover" id="detailTable">
@@ -140,10 +127,7 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            @Html.DropDownListFor(m => m.Order.CategoryId,
-                                                                   (IEnumerable<SelectListItem>)ViewBag.Categories,
-                                                                   "-- Chọn danh mục --",
-                                                                   new { @class = "form-control" })
+                                            @Html.DropDownListFor(m => m.Order.CategoryId,(IEnumerable<SelectListItem>)ViewBag.Categories,"-- Chọn danh mục --", new { @class = "form-control" })
                                         </td>
                                         <td>
                                             <textarea name="Order.DeviceRequirement"
@@ -169,24 +153,41 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
 
+                    </div>
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            3. Tình trạng đơn hàng:
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="Order.Status" class="form-control">
+                                    <option value="0" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Preparing ? "selected" : "")>Đang chuẩn bị</option>
+                                    <option value="1" @(Model.Order.Status == DATN_Web.Models.Enum.OrderStatus.Active ? "selected" : "")>Đã giao hàng</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-footer bg-white d-flex justify-content-end align-items-center gap-2">
                         <button type="submit" class="btn btn-outline-success px-4">
                             <i class="fas fa-save mr-1"></i> Lưu
                         </button>
                         <button type="submit"
-                                class="btn btn-outline-primary px-4 mr-2"
+                                class="btn btn-outline-primary px-4 mr-2 @(disableFinish ? "disabled" : "")"
                                 formaction="@Url.Action("FinishOrder", "Orders")"
                                 formmethod="post"
-                                onclick="return confirm('Bạn có chắc chắn muốn KẾT THÚC đơn hàng này không?');">
+                                @(disableFinish ? "disabled title='Đơn hàng đang chuẩn bị, chưa thể kết thúc'" : "")
+                                onclick="return @(disableFinish ? "false" : "confirm('Bạn có chắc chắn muốn KẾT THÚC đơn hàng này không?');")">
                             <i class="fas fa-check-circle mr-1"></i> Kết thúc đơn hàng
                         </button>
                         <button type="submit"
-                                class="btn btn-outline-danger px-4"
+                                class="btn btn-outline-danger px-4 @(disableCancel ? "disabled" : "")"
                                 formaction="@Url.Action("DeleteOrder", "Orders")"
                                 formmethod="post"
-                                onclick="return confirm('Bạn có chắc chắn muốn huỷ đơn hàng này không?');">
+                                @(disableCancel ? "disabled title='Đơn hàng đã giao, không thể huỷ'" : "")
+                                onclick="return @(disableCancel ? "false" : "confirm('Bạn có chắc chắn muốn huỷ đơn hàng này không?');")">
                             <i class="fas fa-trash mr-1"></i> Huỷ đơn hàng
                         </button>
                         <button href="@Url.Action("DetailCustomers","Customers", new { id = Model.Customer.CustomerId })"
@@ -194,7 +195,6 @@
                             <i class="fas fa-times mr-1"></i> Thoát
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>

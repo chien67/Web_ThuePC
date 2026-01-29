@@ -19,6 +19,7 @@ namespace DATN_Web.Models.Entities
         public string TaxCode { get; set; }
         public DateTime PaidDate { get; set; }
         public int PaidUserId { get; set; }
+        public bool Status { get; set; } // false = chưa thanh toán, true = đã thanh toán
 
         public string Note { get; set; }
         public DateTime CreatedDate { get; set; }

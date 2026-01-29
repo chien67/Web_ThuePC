@@ -10,6 +10,7 @@ using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.Mvc;
 using DATN_Web.BusinessLayer;
+using DATN_Web.BusinessLogicLayer;
 using DATN_Web.DataAccesLayer;
 
 namespace DATN_Web
@@ -43,6 +44,7 @@ namespace DATN_Web
             builder.RegisterType<BillDAL>().AsSelf().InstancePerRequest();
             builder.RegisterType<BillBLL>().AsSelf().InstancePerRequest();
             builder.RegisterType<DeviceBrokenLogDAL>().AsSelf();
+            builder.RegisterType<WorkTaskDAL>().AsSelf().InstancePerRequest();
             // ...
 
             // 2. Đăng ký các BLL (BLL sẽ tự động nhận DAL qua Constructor)
@@ -50,6 +52,7 @@ namespace DATN_Web
             builder.RegisterType<DeviceModelBLL>().AsSelf().InstancePerRequest();
             builder.RegisterType<CustomerBLL>().AsSelf().InstancePerRequest();
             builder.RegisterType<DeviceBrokenLogBLL>().AsSelf();
+            builder.RegisterType<DailyTaskBLL>().AsSelf().InstancePerRequest();
             // BƯỚC 4: Xây dựng Container và thiết lập Dependency Resolver
             var container = builder.Build();
 

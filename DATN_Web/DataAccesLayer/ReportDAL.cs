@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.DataAccesLayer
 {
@@ -14,62 +16,46 @@ namespace DATN_Web.DataAccesLayer
             return ConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
         }
 
-        // Doanh thu theo tháng
-        public Dictionary<int, decimal> GetRevenueByMonth(int year)
+        public ReportFilterVM GetRevenueAndNewCustomers(DateTime from, DateTime toInclusive)
         {
-            var result = new Dictionary<int, decimal>();
-
             string sql = @"
-            SELECT MONTH(PaidDate) AS Thang, SUM(TotalAmount) AS DoanhThu
-            FROM Bills
-            WHERE YEAR(PaidDate) = @Year
-            GROUP BY MONTH(PaidDate)";
+                SELECT
+                    -- Doanh thu
+                    ISNULL((
+                        SELECT SUM(TotalAmount)
+                        FROM Bills
+                        WHERE Status = 1
+                          AND PaidDate >= @From AND PaidDate <= @To
+                    ), 0) AS Revenue,
 
-            using (var conn = new SqlConnection(GetConnectionString()))
-            using (var cmd = new SqlCommand(sql, conn))
+                    -- Khách hàng mới
+                    ISNULL((
+                        SELECT COUNT(*)
+                        FROM Customers
+                        WHERE CreatedDate >= @From AND CreatedDate <= @To
+                    ), 0) AS NewCustomers;";
+
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
             {
-                cmd.Parameters.AddWithValue("@Year", year);
-                conn.Open();
+                cmd.Parameters.Add("@From", SqlDbType.DateTime).Value = from;
+                cmd.Parameters.Add("@To", SqlDbType.DateTime).Value = toInclusive;
 
-                var rd = cmd.ExecuteReader();
-                while (rd.Read())
+                conn.Open();
+                using (var rd = cmd.ExecuteReader())
                 {
-                    result.Add(
-                        Convert.ToInt32(rd["Thang"]),
-                        Convert.ToDecimal(rd["DoanhThu"])
-                    );
+                    if (rd.Read())
+                    {
+                        return new ReportFilterVM
+                        {
+                            Revenue = Convert.ToDecimal(rd["Revenue"]),
+                            NewCustomers = Convert.ToInt32(rd["NewCustomers"])
+                        };
+                    }
                 }
             }
-            return result;
-        }
 
-        // Khách hàng mới theo tháng
-        public Dictionary<int, int> GetNewCustomersByMonth(int year)
-        {
-            var result = new Dictionary<int, int>();
-
-            string sql = @"
-            SELECT MONTH(CreatedDate) AS Thang, COUNT(*) AS SoKhach
-            FROM Customers
-            WHERE YEAR(CreatedDate) = @Year
-            GROUP BY MONTH(CreatedDate)";
-
-            using (var conn = new SqlConnection(GetConnectionString()))
-            using (var cmd = new SqlCommand(sql, conn))
-            {
-                cmd.Parameters.AddWithValue("@Year", year);
-                conn.Open();
-
-                var rd = cmd.ExecuteReader();
-                while (rd.Read())
-                {
-                    result.Add(
-                        Convert.ToInt32(rd["Thang"]),
-                        Convert.ToInt32(rd["SoKhach"])
-                    );
-                }
-            }
-            return result;
+            return new ReportFilterVM();
         }
     }
 }

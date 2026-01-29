@@ -129,8 +129,8 @@ namespace DATN_Web.BusinessLayer
 
                 if (used + quantity > totalStock)
                 {
-                    error = $"Ngày {date:dd/MM/yyyy} không đủ máy. " +
-                            $"Đã có {used}/{totalStock} máy được đặt.";
+                    error = $"Ngày {date:dd/MM/yyyy} không đủ thiết bị. " +
+                            $"Đã có {used}/{totalStock} thiết bị được đặt.";
                     return false;
                 }
             }
@@ -149,6 +149,12 @@ namespace DATN_Web.BusinessLayer
             if (order == null) return null;
 
             return order;
+        }
+        public List<OrderListRow> GetUpcomingDeliveryOrders(int days = 7)
+        {
+            var from = DateTime.Today;
+            var to = DateTime.Today.AddDays(days - 1);
+            return _orderDal.GetOrdersDeliveryInRange(from, to);
         }
     }
 }

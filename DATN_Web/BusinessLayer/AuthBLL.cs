@@ -56,5 +56,26 @@ namespace DATN_Web.BusinessLayer
         {
             return _dal.GetAllUsers();
         }
+        public User GetUserById(int id)
+        {
+            return _dal.GetById(id);
+        }
+
+        public bool UpdateUserInfo(User u)
+        {
+            if (u.UserId <= 0) return false;
+
+            // _dal.UpdateUserInfo(u) trả về int => chuyển sang bool
+            return _dal.UpdateUserInfo(u) > 0;
+        }
+        public bool DeleteUser(int userId, int currentUserId)
+        {
+            if (userId <= 0) return false;
+
+            // chặn admin tự xoá chính mình
+            if (userId == currentUserId) return false;
+
+            return _dal.DeleteById(userId) > 0;
+        }
     }
 }

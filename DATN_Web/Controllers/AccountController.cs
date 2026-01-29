@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using DATN_Web.BusinessLayer;
 using DATN_Web.Filters;
+using DATN_Web.Models.Entities;
 using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.Controllers
@@ -100,6 +101,55 @@ namespace DATN_Web.Controllers
             FormsAuthentication.SignOut();
             Session.Clear();
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        [AdminOnly]
+        public ActionResult Edit(int id)
+        {
+            var u = _auth.GetUserById(id);
+            if (u == null) return HttpNotFound();
+
+            return View(u); // truyền Entity thẳng
+        }
+        [HttpPost]
+        [AdminOnly]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(User model)
+        {
+            if (model.UserId <= 0)
+            {
+                ModelState.AddModelError("", "User không hợp lệ");
+                return View(model);
+            }
+
+            bool ok = _auth.UpdateUserInfo(model);
+            if (!ok)
+            {
+                ModelState.AddModelError("", "Cập nhật thất bại");
+                return View(model);
+            }
+
+            // ⭐ THÔNG BÁO THÀNH CÔNG
+            TempData["ToastSuccess"] = "Cập nhật người dùng thành công";
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        [AdminOnly]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int id)
+        {
+            int currentUserId = Session["UserId"] != null ? (int)Session["UserId"] : 0;
+
+            bool ok = _auth.DeleteUser(id, currentUserId);
+
+            if (ok)
+                TempData["ToastSuccess"] = "Xoá tài khoản thành công";
+            else
+                TempData["ToastError"] = "Không thể xoá tài khoản (có thể bạn đang xoá chính mình hoặc dữ liệu không tồn tại)";
+
+            return RedirectToAction("Index");
         }
     }
 }

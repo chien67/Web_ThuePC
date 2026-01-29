@@ -1,39 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.Entities;
 
-namespace DATN_Web.BusinessLayer
+namespace DATN_Web.BusinessLogicLayer
 {
     public class BillBLL
     {
         private readonly BillDAL _billDal;
+
         public BillBLL()
         {
             _billDal = new BillDAL();
         }
-        // Thanh toán đơn hàng
+
+        // Thanh toán: bill PHẢI tồn tại trước (được tạo khi kết thúc đơn), Status=0
+        // Khi bấm thanh toán -> update Status=1
         public void PayOrder(Bill bill)
         {
-            // 1️⃣ Kiểm tra đã có bill cho order này chưa
-            Bill existingBill = _billDal.GetByOrderId(bill.OrderId);
-            if (existingBill != null)
-            {
+            if (bill == null) throw new Exception("Dữ liệu hóa đơn không hợp lệ.");
+            if (bill.OrderId <= 0) throw new Exception("OrderId không hợp lệ.");
+            if (bill.TotalAmount <= 0) throw new Exception("Số tiền thanh toán không hợp lệ.");
+            if (bill.PaidUserId <= 0) throw new Exception("Không xác định người thanh toán.");
+
+            var existing = _billDal.GetByOrderId(bill.OrderId);
+
+            // 1) đã thanh toán rồi
+            if (existing != null && existing.Status == true)
                 throw new Exception("Đơn hàng này đã được thanh toán.");
-            }
 
-            // 2️⃣ Kiểm tra dữ liệu cơ bản
-            if (bill.TotalAmount <= 0)
+            // 2) có bill nhưng chưa thanh toán (Status=0) -> update
+            if (existing != null && existing.Status == false)
             {
-                throw new Exception("Số tiền thanh toán không hợp lệ.");
+                bool ok = _billDal.Pay(existing.BillId, bill.PaidUserId);
+                if (!ok) throw new Exception("Thanh toán thất bại. Vui lòng thử lại.");
+                return;
             }
 
-            // 3️⃣ Thêm bill
-            _billDal.Insert(bill);
+            // 3) chưa có bill -> insert bill đã thanh toán (Status=1)
+            bill.Status = true;
+            if (bill.PaidDate == DateTime.MinValue) bill.PaidDate = DateTime.Now;
+            bill.CreatedDate = DateTime.Now;
 
-            // 4️⃣ (ĐỂ SAU) cập nhật Order.IsPaid
+            _billDal.InsertPaid(bill);
+        }
+        public Bill GetByOrderId(int orderId)
+        {
+            return _billDal.GetByOrderId(orderId);
+        }
+        public bool IsPaidByOrderId(int orderId)
+        {
+            return _billDal.IsPaidByOrderId(orderId);
         }
     }
 }

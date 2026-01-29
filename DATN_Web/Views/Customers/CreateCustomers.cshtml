@@ -14,21 +14,25 @@
                     <!-- /.card-header -->
                     <!-- form start -->
                     <form method="post" action="@Url.Action("CreateCustomers", "Customers")" role="form" id="quickForm">
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-2" })
                         <div class="card-body">
                             <div class="form-group">
                                 <label>Loại khách hàng</label>
-                                <select name="CustomerType" class="form-control">
+                                <select name="CustomerType" id="CustomerType" class="form-control">
                                     <option value="1">Cá nhân</option>
                                     <option value="2">Doanh nghiệp</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Tên khách hàng</label>
-                                <input type="text" name="CustomerName" class="form-control" placeholder="Vui lòng nhập tên hoặc doanh nghiệp">
+                                <input type="text" name="CustomerName" id="CustomerName" class="form-control" placeholder="Vui lòng nhập tên doanh nghiệp">
+                                @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
                             </div>
                             <div class="form-group">
                                 <label>Người đại diện</label>
                                 <input type="text" name="RepresentativeName" class="form-control" placeholder="Người đại diện">
+                                @Html.ValidationMessageFor(m => m.RepresentativeName, "", new { @class = "text-danger" })
                             </div>
                             <div class="form-group">
                                 <label>CCCD</label>
@@ -66,3 +70,27 @@
     <!-- Control sidebar content goes here -->
 </aside>
 <!-- /.control-sidebar -->
+@section Scripts {
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var typeEl = document.getElementById('CustomerType');
+    var nameEl = document.getElementById('CustomerName');
+    if (!typeEl || !nameEl) return;
+
+    function toggleCustomerName() {
+      var type = typeEl.value; // "1" hoặc "2"
+      if (type === '1') { // Cá nhân
+        nameEl.value = '';
+        nameEl.disabled = true;
+        nameEl.placeholder = 'Cá nhân: không cần nhập tên công ty';
+      } else { // Doanh nghiệp
+        nameEl.disabled = false;
+        nameEl.placeholder = 'Nhập tên công ty';
+      }
+    }
+
+    toggleCustomerName();
+    typeEl.addEventListener('change', toggleCustomerName);
+  });
+    </script>
+}

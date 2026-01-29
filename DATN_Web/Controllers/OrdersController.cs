@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models.Entities;
+using DATN_Web.Models.Enum;
 using DATN_Web.Models.ViewModels;
 
 namespace DATN_Web.Controllers
@@ -134,7 +135,7 @@ namespace DATN_Web.Controllers
             var cus = _customerBll.GetCustomerDetail(order.Order.CustomerId);
             if (cus == null) return HttpNotFound();
 
-            // 3️⃣ Lấy danh sách danh mục để đổ dropdown
+            // Lấy danh sách danh mục để đổ dropdown
             var categories = _cusDeviceBll.GetCategories(); // hoặc BLL bạn đang dùng
 
             ViewBag.Categories = categories.Select(x => new SelectListItem
@@ -199,20 +200,31 @@ namespace DATN_Web.Controllers
 
             if (orderId <= 0)
             {
-                TempData["Error"] = "Đơn hàng không hợp lệ.";
-                return RedirectToAction("DetailCustomers", "Customers", new { id = customerId });
+                TempData["ToastError"] = "Đơn hàng không hợp lệ.";
+                return RedirectToAction("DetailCustomers", "Customers", new { id = customerId, tab = "orders" });
+            }
+
+            // LẤY TRẠNG THÁI HIỆN TẠI TỪ DB (đừng tin dữ liệu từ form)
+            var order = _orderBll.GetById(orderId);
+            if (order == null)
+            {
+                TempData["ToastError"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("DetailCustomers", "Customers", new { id = customerId, tab = "orders" });
+            }
+
+            //  Đang chuẩn bị => không cho kết thúc
+            if (order.Status == OrderStatus.Preparing)
+            {
+                TempData["ToastError"] = "Đơn hàng đang chuẩn bị, chưa thể kết thúc.";
+                return RedirectToAction("DetailCustomers", "Customers", new { id = customerId, tab = "orders" });
             }
 
             bool ok = _orderBll.FinishOrder(orderId);
 
-            TempData[ok ? "Success" : "Error"] =
+            TempData[ok ? "ToastSuccess" : "ToastError"] =
                 ok ? "Đã kết thúc đơn hàng." : "Kết thúc đơn hàng thất bại.";
 
-            return RedirectToAction(
-                "DetailCustomers",
-                "Customers",
-                new { id = customerId, tab = "orders" }
-            );
+            return RedirectToAction("DetailCustomers", "Customers", new { id = customerId, tab = "orders" });
         }
     }
 }
