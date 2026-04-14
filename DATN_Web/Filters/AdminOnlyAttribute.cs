@@ -6,36 +6,63 @@ using System.Web.Mvc;
 
 namespace DATN_Web.Filters
 {
-    public class AdminOnlyAttribute : AuthorizeAttribute
+    public class AdminOnlyAttribute : ActionFilterAttribute
     {
-        protected override bool AuthorizeCore(HttpContextBase httpContext)
+        //protected override bool AuthorizeCore(HttpContextBase httpContext)
+        //{
+        //    if (httpContext == null) return false;
+
+        //    var session = httpContext.Session;
+        //    if (session == null) return false;
+
+        //    // phải đăng nhập
+        //    if (session["UserId"] == null) return false;
+
+        //    // role = 2 là admin
+        //    if (session["Role"] == null) return false;
+
+        //    byte role = (byte)session["Role"];
+        //    return role == 2;
+        //}
+
+        //protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+        //{
+        //    // Nếu chưa login -> về login
+        //    if (filterContext.HttpContext.Session == null || filterContext.HttpContext.Session["UserId"] == null)
+        //    {
+        //        filterContext.Result = new RedirectResult("~/Account/Login");
+        //        return;
+        //    }
+
+        //    // Nếu login rồi nhưng không phải admin -> trả về 403
+        //    filterContext.Result = new HttpStatusCodeResult(403, "Bạn không có quyền truy cập");
+        //}
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (httpContext == null) return false;
+            bool allowAnonymous =
+                filterContext.ActionDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true) ||
+                filterContext.ActionDescriptor.ControllerDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true);
 
-            var session = httpContext.Session;
-            if (session == null) return false;
+            if (allowAnonymous)
+            {
+                base.OnActionExecuting(filterContext);
+                return;
+            }
 
-            // phải đăng nhập
-            if (session["UserId"] == null) return false;
+            var session = filterContext.HttpContext.Session;
 
-            // role = 2 là admin
-            if (session["Role"] == null) return false;
-
-            byte role = (byte)session["Role"];
-            return role == 2;
-        }
-
-        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
-        {
-            // Nếu chưa login -> về login
-            if (filterContext.HttpContext.Session == null || filterContext.HttpContext.Session["UserId"] == null)
+            if (session == null || session["UserId"] == null)
             {
                 filterContext.Result = new RedirectResult("~/Account/Login");
                 return;
             }
+            if (session["Role"] == null || (byte)session["Role"] != 2)
+            {
+                filterContext.Result = new HttpStatusCodeResult(403);
+                return;
+            }
 
-            // Nếu login rồi nhưng không phải admin -> trả về 403
-            filterContext.Result = new HttpStatusCodeResult(403, "Bạn không có quyền truy cập");
+            base.OnActionExecuting(filterContext);
         }
     }
 }

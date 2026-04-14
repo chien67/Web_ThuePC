@@ -6,7 +6,8 @@ using System.Web.Mvc;
 using DATN_Web.BusinessLayer;
 using DATN_Web.DataAccesLayer;
 using DATN_Web.Models;
-
+using ClosedXML.Excel;
+using System.IO;
 namespace DATN_Web.Controllers
 {
     public class WarehouseController : Controller
@@ -52,6 +53,45 @@ namespace DATN_Web.Controllers
         public ActionResult DetaiDeviceCategory()
         {
             return View();
+        }
+        public ActionResult ExportExcel()
+        {
+            var data = _bll.GetAllWithStats(); // giống Index
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("DanhMuc");
+
+                // Header
+                worksheet.Cell(1, 1).Value = "STT";
+                worksheet.Cell(1, 2).Value = "Tên danh mục";
+                worksheet.Cell(1, 3).Value = "Số lượng model";
+                worksheet.Cell(1, 4).Value = "Số lượng thiết bị";
+                worksheet.Cell(1, 5).Value = "Cập nhật";
+
+                // Data
+                int row = 2;
+                foreach (var cate in data)
+                {
+                    worksheet.Cell(row, 1).Value = cate.Id;
+                    worksheet.Cell(row, 2).Value = cate.CategoryName;
+                    worksheet.Cell(row, 3).Value = cate.ModelCount;
+                    worksheet.Cell(row, 4).Value = cate.TotalQuantity;
+                    worksheet.Cell(row, 5).Value = cate.LastUpdated;
+                    row++;
+                }
+
+                // Auto width cho đẹp
+                worksheet.Columns().AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "DanhSachDanhMuc.xlsx");
+                }
+            }
         }
     }
 }

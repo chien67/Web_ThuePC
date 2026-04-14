@@ -37,6 +37,10 @@
         <div class="card col-lg-10 col-xl-9">
             <div class="card-header bg-success">
                 <h3 class="card-title ">Danh sách máy kèm cấu hình</h3>
+                <a href="@Url.Action("ExportExcel","DeviceModels", new { categoryId = Model.CategoryId })"
+                   class="btn btn-success mb-2">
+                    Xuất Excel
+                </a>
             </div>
             <table id="example2" class="table table-bordered table-hover">
                 <thead>
@@ -48,7 +52,6 @@
                         <th>Tồn kho</th>
                         <th>Sử dụng</th>
                         <th>Hỏng</th>
-                        @*<th>Update</th>*@
                         <th></th>
                     </tr>
                 </thead>
